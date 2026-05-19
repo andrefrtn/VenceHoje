@@ -98,6 +98,8 @@ body{
     color: rgb(176, 204, 240);
 }
 
+
+
 .profile{
     background-color: #465366;
     width: 10%;
@@ -105,6 +107,17 @@ body{
     margin-top: 1.5%;
     margin-left: 2%;
     border-radius: 80px;
+
+        transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+.profile:hover{
+    background-color:#29374d ;
+    color: rgb(176, 204, 240);
 }
 
 .user{
