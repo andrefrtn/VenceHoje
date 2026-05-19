@@ -1,4 +1,9 @@
 import './Header.css'
+import App from '../../App';
+
+import { Link } from 'react-router-dom'
+
+
 
 export default function Header() {
   return (
@@ -8,20 +13,20 @@ export default function Header() {
 
     <div className='subHeader'>
 
-<div className='pages'><svg className='casa' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="30" height="30">
+<Link to="/"  className='pages'><svg className='casa' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="30" height="30">
 <path fill="rgb(255, 255, 255)" d="M277.8 8.6c-12.3-11.4-31.3-11.4-43.5 0l-224 208c-9.6 9-12.8 22.9-8 35.1S18.8 272 32 272l16 0 0 176c0 35.3 28.7 64 64 64l288 0c35.3 0 64-28.7 64-64l0-176 16 0c13.2 0 25-8.1 29.8-20.3s1.6-26.2-8-35.1l-224-208zM240 320l32 0c26.5 0 48 21.5 48 48l0 96-128 0 0-96c0-26.5 21.5-48 48-48z" /></svg>
 DashBoard
-</div> 
+</Link > 
 
-<div className='pages'><svg className='din' xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 512 512" width="30" height="30"
+<Link to=""  className='pages'><svg className='din' xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 512 512" width="30" height="30"
 ><path fill="rgb(255, 255, 255)" d="M112 112c0 35.3-28.7 64-64 64l0 160c35.3 0 64 28.7 64 64l288 0c0-35.3 28.7-64 64-64l0-160c-35.3 0-64-28.7-64-64l-288 0zM0 128C0 92.7 28.7 64 64 64l384 0c35.3 0 64 28.7 64 64l0 256c0 35.3-28.7 64-64 64L64 448c-35.3 0-64-28.7-64-64L0 128zm256 16a112 112 0 1 1 0 224 112 112 0 1 1 0-224zm-16 44c-11 0-20 9-20 20 0 9.7 6.9 17.7 16 19.6l0 48.4-4 0c-11 0-20 9-20 20s9 20 20 20l48 0c11 0 20-9 20-20s-9-20-20-20l-4 0 0-68c0-11-9-20-20-20l-16 0z"/>
-</svg>Contas</div>
+</svg>Contas</Link >
 
 
 
-<div className='pages'><svg className='cal' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"  width="30" height="30">
+<Link to="/calendar" className='pages'><svg className='cal' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"  width="30" height="30">
 <path fill="rgb(255, 255, 255)" d="M128 0C110.3 0 96 14.3 96 32l0 32-32 0C28.7 64 0 92.7 0 128l0 48 448 0 0-48c0-35.3-28.7-64-64-64l-32 0 0-32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 32-128 0 0-32c0-17.7-14.3-32-32-32zM0 224L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-192-448 0z"/>
-</svg>Calendario</div>
+</svg>Calendario</Link >
 
 
 <div className='pages'><svg className='assinatura'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"  width="30" height="30"

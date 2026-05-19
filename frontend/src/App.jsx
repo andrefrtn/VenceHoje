@@ -1,11 +1,23 @@
-import './App.css'; 
-import Header from './components/Header/Header';
+import './App.css'
 
-export default function App() { 
+import Header from './components/Header/Header'
+
+import { Routes, Route } from 'react-router-dom'
+
+
+import Dashboard from './Dashboard'
+import Calendar from './Calendar'
+
+export default function App() {
   return (
     <>
-   <Header/>
+      <Header />
 
-   </>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+
+        <Route path="/calendar" element={<Calendar />} />
+      </Routes>
+    </>
   )
 }
