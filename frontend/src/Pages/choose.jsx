@@ -2,9 +2,80 @@ import { useState } from 'react'
 
 import '../style/Choose.css'
 
+import axios from "axios"
+
 export default function Choose() {
 
   const [isRegister, setIsRegister] = useState(false)
+
+
+const [email, setEmail] = useState("")
+const [password, setPassword] = useState("")
+const [confirmPassword, setConfirmPassword] = useState("")
+const [phone, setPhone] = useState("")
+const [birthDate, setBirthDate] = useState("")
+
+
+async function handleRegister() {
+
+  if (password !== confirmPassword) {
+    return alert("As senhas não coincidem")
+  }
+
+  try {
+
+    const response = await axios.post(
+      "http://localhost:3000/register",
+      {
+        email,
+        password,
+        phone,
+        birthDate
+      }
+    )
+
+    alert(response.data.message)
+
+  } catch (err) {
+
+    console.log(err)
+
+    alert("Erro ao criar conta")
+
+  }
+
+}
+
+
+async function handleLogin() {
+
+  try {
+
+    const response = await axios.post(
+      "http://localhost:3000/login",
+      {
+        email,
+        password
+      }
+    )
+
+    localStorage.setItem(
+      "token",
+      response.data.token
+    )
+
+    alert("Login feito!")
+
+  } catch (err) {
+
+    console.log(err)
+
+    alert("Erro no login")
+
+  }
+
+}
+
 
   return (
 
@@ -36,15 +107,19 @@ export default function Choose() {
 
           <form>
 
-            <input
-              type="email"
-              placeholder="Seu email"
+          <input
+            type="email"
+            placeholder="Seu email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             />
 
-            <input
-              type="password"
-              placeholder="Sua senha"
-            />
+           <input
+            type="password"
+            placeholder="Sua senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+                />
 
             {
               isRegister && (
@@ -53,17 +128,23 @@ export default function Choose() {
                   <input
                     type="password"
                     placeholder="Confirmar senha"
-                  />
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
 
                   <input
                     type="tel"
                     placeholder="Telefone"
-                  />
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    />
 
                 <input
-                type="date"
-                min="1940-01-01"
-                max={new Date().toISOString().split("T")[0]}
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    min="1940-01-01"
+                    max={new Date().toISOString().split("T")[0]}
                     />
 
                 </>
@@ -71,14 +152,19 @@ export default function Choose() {
             }
 
             <button
-              type="button"
-              className="loginBtn"
+            type="button"
+            className="loginBtn"
+            onClick={
+                isRegister
+                ? handleRegister
+                : handleLogin
+            }
             >
-              {
+            {
                 isRegister
                 ? 'Criar conta'
                 : 'Entrar'
-              }
+            }
             </button>
 
             <button
