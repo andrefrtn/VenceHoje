@@ -14,9 +14,20 @@ const [password, setPassword] = useState("")
 const [confirmPassword, setConfirmPassword] = useState("")
 const [phone, setPhone] = useState("")
 const [birthDate, setBirthDate] = useState("")
+const [name, setName] = useState("")
+const [cpf, setCpf] = useState("")
+const [loginIdentifier, setLoginIdentifier] = useState("")
 
 
 async function handleRegister() {
+if (
+  !name ||
+  !cpf ||
+  !email ||
+  !password
+) {
+  return alert("Preencha todos os campos")
+}
 
   if (password !== confirmPassword) {
     return alert("As senhas não coincidem")
@@ -26,53 +37,64 @@ async function handleRegister() {
 
     const response = await axios.post(
       "http://localhost:3000/register",
-      {
-        email,
-        password,
-        phone,
-        birthDate
-      }
+     {
+    name,
+    cpf,
+    email,
+    password,
+    phone,
+    birthDate
+    }
     )
 
     alert(response.data.message)
 
   } catch (err) {
-
-    console.log(err)
-
-    alert("Erro ao criar conta")
-
-  }
+  console.log("ERRO COMPLETO:", err)
+  console.log("RESPOSTA DO BACKEND:", err.response?.data)
+  alert(err.response?.data?.message || "Erro ao criar conta")
+}
 
 }
 
 
 async function handleLogin() {
-
   try {
-
     const response = await axios.post(
       "http://localhost:3000/login",
       {
-        email,
-        password
+     email,
+     password
       }
     )
 
-    localStorage.setItem(
-      "token",
-      response.data.token
-    )
+    localStorage.setItem("token", response.data.token)
 
     alert("Login feito!")
-
   } catch (err) {
-
     console.log(err)
-
     alert("Erro no login")
-
   }
+}
+
+
+function cpfMask(value) {
+
+  return value
+    .replace(/\D/g, "")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+
+}
+
+
+function phoneMask(value) {
+
+  return value
+    .replace(/\D/g, "")
+    .replace(/(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d)/, "$1-$2")
 
 }
 
@@ -107,12 +129,52 @@ async function handleLogin() {
 
           <form>
 
-          <input
-            type="email"
-            placeholder="Seu email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+
+              {isRegister && (
+            <input
+            type="text"
+            placeholder="Nome completo"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             />
+              )}
+
+
+              {isRegister && (
+            <input
+            type="text"
+            placeholder="CPF"
+            maxLength={14}
+            value={cpf}
+            onChange={(e) =>
+                setCpf(cpfMask(e.target.value))
+            }
+            />
+        )}
+
+{isRegister && (
+                <input
+            type="tel"
+            placeholder="Telefone"
+            maxLength={15}
+            value={phone}
+            onChange={(e) =>
+                setPhone(phoneMask(e.target.value))
+            }
+            />
+        )}
+            
+
+<input
+  type="email"
+  placeholder="Seu email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+/>
+
+            
+
+            
 
            <input
             type="password"
@@ -132,12 +194,7 @@ async function handleLogin() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     />
 
-                  <input
-                    type="tel"
-                    placeholder="Telefone"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    />
+         
 
                 <input
                     type="date"
