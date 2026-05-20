@@ -433,3 +433,8 @@ input:focus{
 .registerBtn:hover{
     background-color: #1B2029;
 }
+
+.loginBtn a {
+  text-decoration: none;
+  color: inherit;
+}

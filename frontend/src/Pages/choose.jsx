@@ -1,5 +1,8 @@
 import { useState } from 'react'
 
+import { Link } from 'react-router-dom'
+
+
 import '../style/Choose.css'
 
 import axios from "axios"
@@ -208,7 +211,7 @@ function phoneMask(value) {
               )
             }
 
-            <button
+            <button className ="btt"
             type="button"
             className="loginBtn"
             onClick={
@@ -220,7 +223,7 @@ function phoneMask(value) {
             {
                 isRegister
                 ? 'Criar conta'
-                : 'Entrar'
+                : <Link to="/dashboard">Entrar</Link>
             }
             </button>
 
