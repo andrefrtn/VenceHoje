@@ -8,14 +8,14 @@ import { Link } from 'react-router-dom'
 export default function Header() {
   return (
  <div className='header'>
-<h1 className='logo'>
+<Link to="/dashboard" className='logo'>
   vence<span className='hj'>hoje</span>
-</h1>
+</Link>
 
 
     <div className='subHeader'>
 
-<Link to="/"  className='pages'><svg className='casa' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="30" height="30">
+<Link to="/dashboard"  className='pages'><svg className='casa' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="30" height="30">
 <path fill="currentColor" d="M277.8 8.6c-12.3-11.4-31.3-11.4-43.5 0l-224 208c-9.6 9-12.8 22.9-8 35.1S18.8 272 32 272l16 0 0 176c0 35.3 28.7 64 64 64l288 0c35.3 0 64-28.7 64-64l0-176 16 0c13.2 0 25-8.1 29.8-20.3s1.6-26.2-8-35.1l-224-208zM240 320l32 0c26.5 0 48 21.5 48 48l0 96-128 0 0-96c0-26.5 21.5-48 48-48z" /></svg>
 DashBoard
 </Link > 
@@ -43,10 +43,10 @@ DashBoard
 
 
 
-    <div className='profile'>
+    <Link to="/"  className='profile'>
   <svg className='user' xmlns="http://w3.org" viewBox="0 0 448 512" width="60" height="60">
   <path fill="rgb(255, 255, 255)" d="M224 248a120 120 0 1 0 0-240 120 120 0 1 0 0 240zm-29.7 56C95.8 304 16 383.8 16 482.3 16 498.7 29.3 512 45.7 512l356.6 0c16.4 0 29.7-13.3 29.7-29.7 0-98.5-79.8-178.3-178.3-178.3l-59.4 0z"/>
-</svg></div>
+</svg></Link>
     </div>
   )
 }

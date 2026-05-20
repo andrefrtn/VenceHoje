@@ -7,6 +7,7 @@ import { Routes, Route } from 'react-router-dom'
 
 import Dashboard from './Dashboard'
 import Calendar from './Calendar'
+import Choose from './choose'
 
 export default function App() {
   return (
@@ -14,9 +15,11 @@ export default function App() {
       <Header />
 
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Choose />} />
 
         <Route path="/calendar" element={<Calendar />} />
+
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </>
   )
