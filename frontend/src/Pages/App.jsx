@@ -1,9 +1,9 @@
 import '../style/App.css'
 
 import Header from '../components/Header/Header'
+import ProtectedRoute from '../components/ProtectedRoute'
 
 import { Routes, Route } from 'react-router-dom'
-
 
 import Dashboard from './Dashboard'
 import Calendar from './Calendar'
@@ -15,11 +15,27 @@ export default function App() {
       <Header />
 
       <Routes>
+
         <Route path="/" element={<Choose />} />
 
-        <Route path="/calendar" element={<Calendar />} />
+        <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute>
+              <Calendar />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </>
   )

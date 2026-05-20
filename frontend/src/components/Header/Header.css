@@ -168,3 +168,79 @@
 
     fill: #F8FAFC;
 }
+
+
+.profileWrapper{
+    position: relative;
+}
+
+.profileMenu{
+    position: absolute;
+
+    top: 75px;
+    right: 0;
+
+    width: 160px;
+
+    padding: 12px;
+
+    border-radius: 20px;
+
+    background:
+    linear-gradient(
+    180deg,
+    #171A21,
+    #141821
+    );
+
+    border: 1px solid #252A34;
+
+    box-shadow:
+    0 0 0 1px rgba(255,255,255,0.02),
+    0 10px 30px rgba(0,0,0,0.25);
+
+    animation: fadeIn 0.2s ease;
+}
+
+.logoutBtn{
+    width: 100%;
+    height: 46px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background: transparent;
+
+    color: #F8FAFC;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.logoutBtn:hover{
+    background-color: rgba(239, 68, 68, 0.15);
+
+    color: #EF4444;
+
+    transform: translateY(-1px);
+}
+
+@keyframes fadeIn{
+    from{
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to{
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

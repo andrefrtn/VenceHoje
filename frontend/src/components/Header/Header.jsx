@@ -1,11 +1,29 @@
 import './Header.css'
 import App from '../../Pages/App';
 
-import { Link } from 'react-router-dom'
 
 
 
+import { Link, useNavigate, useLocation  } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 export default function Header() {
+
+const [menuOpen, setMenuOpen] = useState(false)
+
+const navigate = useNavigate()
+
+function logout() {
+  localStorage.removeItem("token")
+
+  navigate("/")
+}
+
+const location = useLocation()
+
+useEffect(() => {
+  setMenuOpen(false)
+}, [location])
+
   return (
  <div className='header'>
 <Link to="/dashboard" className='logo'>
@@ -43,10 +61,34 @@ DashBoard
 
 
 
-    <Link to="/"  className='profile'>
-  <svg className='user' xmlns="http://w3.org" viewBox="0 0 448 512" width="60" height="60">
-  <path fill="rgb(255, 255, 255)" d="M224 248a120 120 0 1 0 0-240 120 120 0 1 0 0 240zm-29.7 56C95.8 304 16 383.8 16 482.3 16 498.7 29.3 512 45.7 512l356.6 0c16.4 0 29.7-13.3 29.7-29.7 0-98.5-79.8-178.3-178.3-178.3l-59.4 0z"/>
-</svg></Link>
+  <div className='profileWrapper'>
+
+  <div
+    className='profile'
+    onClick={() => setMenuOpen(!menuOpen)}
+  >
+    <svg className='user' xmlns="http://w3.org" viewBox="0 0 448 512" width="60" height="60">
+      <path fill="rgb(255, 255, 255)" d="M224 248a120 120 0 1 0 0-240 120 120 0 1 0 0 240zm-29.7 56C95.8 304 16 383.8 16 482.3 16 498.7 29.3 512 45.7 512l356.6 0c16.4 0 29.7-13.3 29.7-29.7 0-98.5-79.8-178.3-178.3-178.3l-59.4 0z"/>
+    </svg>
+  </div>
+
+{menuOpen && (
+  <div className='profileMenu'>
+
+    <button
+      className='logoutBtn'
+      onClick={() => {
+        logout()
+        setMenuOpen(false)
+      }}
+    >
+      Logout
+    </button>
+
+  </div>
+)}
+
+</div>
     </div>
   )
 }
