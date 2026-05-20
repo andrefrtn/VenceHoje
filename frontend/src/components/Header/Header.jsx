@@ -1,5 +1,5 @@
 import './Header.css'
-import App from '../../App';
+import App from '../../Pages/App';
 
 import { Link } from 'react-router-dom'
 
