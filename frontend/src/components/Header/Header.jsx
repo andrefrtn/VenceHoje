@@ -9,7 +9,7 @@ export default function Header() {
   return (
  <div className='header'>
 <Link to="/dashboard" className='logo'>
-  vence<span className='hj'>hoje</span>
+  Vence<span className='hj'>Hoje</span>
 </Link>
 
 

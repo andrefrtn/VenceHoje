@@ -8,7 +8,32 @@
 
 
 
-.logo{ color: #F8FAFC; font-weight: 700; font-size: 36px; letter-spacing: -2px; cursor: pointer; width: fit-content; transition: 0.2s ease; text-decoration: none; position: relative; } .logo::after{ content: ""; position: absolute; left: 0; bottom: -4px; width: 0%; height: 3px; background-color: rgb(255, 255, 255); border-radius: 999px; transition: width 0.25s ease; } .logo:hover::after{ width: 100%; }
+.logo{ 
+    color: #F8FAFC;
+     font-weight: 700;
+      font-size: 60px;
+       letter-spacing: -6px; 
+       cursor: pointer; 
+       width: fit-content; 
+       transition: 0.2s ease;
+        text-decoration: none;
+         position: relative;
+         } 
+
+         .logo::after{ 
+            content: "";
+             position: absolute;
+              left: 0; 
+              bottom: -4px;
+               width: 0%;
+                height: 3px;
+                 background-color: rgb(255, 255, 255); 
+                 border-radius: 999px;
+                  transition: width 0.25s ease;
+                 } 
+                 
+                 .logo:hover::after{
+                     width: 100%; }
 
 .hj{
     color: #7DD3FC;
