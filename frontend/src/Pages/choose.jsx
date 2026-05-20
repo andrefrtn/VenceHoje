@@ -1,6 +1,10 @@
+import { useState } from 'react'
+
 import '../style/Choose.css'
 
 export default function Choose() {
+
+  const [isRegister, setIsRegister] = useState(false)
 
   return (
 
@@ -17,11 +21,15 @@ export default function Choose() {
             </p>
 
             <h3>
-              Bem-vindo
+              {isRegister ? 'Criar conta' : 'Bem-vindo'}
             </h3>
 
             <p className="formDescription">
-              Entre na sua conta ou crie uma gratuitamente.
+              {
+                isRegister
+                ? 'Crie sua conta gratuitamente.'
+                : 'Entre na sua conta.'
+              }
             </p>
 
           </div>
@@ -38,12 +46,51 @@ export default function Choose() {
               placeholder="Sua senha"
             />
 
-            <button className="loginBtn">
-              Entrar
+            {
+              isRegister && (
+                <>
+                
+                  <input
+                    type="password"
+                    placeholder="Confirmar senha"
+                  />
+
+                  <input
+                    type="tel"
+                    placeholder="Telefone"
+                  />
+
+                <input
+                type="date"
+                min="1940-01-01"
+                max={new Date().toISOString().split("T")[0]}
+                    />
+
+                </>
+              )
+            }
+
+            <button
+              type="button"
+              className="loginBtn"
+            >
+              {
+                isRegister
+                ? 'Criar conta'
+                : 'Entrar'
+              }
             </button>
 
-            <button className="registerBtn">
-              Criar conta
+            <button
+              type="button"
+              className="registerBtn"
+              onClick={() => setIsRegister(!isRegister)}
+            >
+              {
+                isRegister
+                ? 'Já tenho conta'
+                : 'Criar conta'
+              }
             </button>
 
           </form>
@@ -129,7 +176,7 @@ export default function Choose() {
 
         <div className="benefitCard">
 
-          <h3 className=''>
+          <h3>
             Nunca perca um vencimento
           </h3>
 
