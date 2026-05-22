@@ -4,25 +4,27 @@ import App from '../../Pages/App';
 
 
 
-import { Link, useNavigate, useLocation  } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-export default function Header() {
 
+export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+
   const token = localStorage.getItem("token")
+  const storedUser = localStorage.getItem("user")
+  const user = storedUser ? JSON.parse(storedUser) : null
 
-      function logout() {
-      localStorage.removeItem("token")
+  function logout() {
+    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    navigate("/")
+  }
 
-      navigate("/")
-    }
-
-      const location = useLocation()
-
-      useEffect(() => {
-        setMenuOpen(false)
-      }, [location])
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location])
 
 
 
@@ -75,6 +77,10 @@ export default function Header() {
             className='profile'
             onClick={() => setMenuOpen(!menuOpen)}
   >
+
+  <span className='userName'>
+  Olá, {user?.name || "usuário"}
+</span>
                 <svg className='user' xmlns="http://w3.org" viewBox="0 0 448 512" width="60" height="60">
                   <path fill="rgb(255, 255, 255)" d="M224 248a120 120 0 1 0 0-240 120 120 0 1 0 0 240zm-29.7 56C95.8 304 16 383.8 16 482.3 16 498.7 29.3 512 45.7 512l356.6 0c16.4 0 29.7-13.3 29.7-29.7 0-98.5-79.8-178.3-178.3-178.3l-59.4 0z"/>
                 </svg>

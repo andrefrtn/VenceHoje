@@ -121,11 +121,13 @@
 
 
 
-.profile{
-    width: 60px;
+.profile {
+    width: auto;
     height: 60px;
 
-    min-width: 60px;
+    min-width: 170px;
+    padding: 0 16px;
+    gap: 10px;
 
     display: flex;
     align-items: center;
@@ -139,7 +141,6 @@
     );
 
     border: 1px solid #252A34;
-
     border-radius: 20px;
 
     cursor: pointer;
@@ -243,4 +244,25 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.profileWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+
+
+.userName {
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    font-family: "Gilroy", sans-serif;
+
+}
+
+.user {
+  flex-shrink: 0;
 }

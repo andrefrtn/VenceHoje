@@ -44,21 +44,25 @@ export default function Choose() {
     }
   }
 
-  async function handleLogin() {
-    try {
-      const response = await axios.post("http://localhost:3000/login", {
-        email,
-        password
-      })
+async function handleLogin() {
+  try {
+    const response = await axios.post("http://localhost:3000/login", {
+      email,
+      password
+    })
 
-      localStorage.setItem("token", response.data.token)
-      navigate("/dashboard")
+    console.log("LOGIN:", response.data)
 
-    } catch (err) {
-      console.log(err)
-      alert("Erro no login")
-    }
+    localStorage.setItem("token", response.data.token)
+    localStorage.setItem("user", JSON.stringify(response.data.user))
+
+    navigate("/dashboard")
+
+  } catch (err) {
+    console.log(err)
+    alert("Erro no login")
   }
+}
 
   function cpfMask(value) {
     return value
