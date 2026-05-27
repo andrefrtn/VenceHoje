@@ -9,9 +9,23 @@ const { PrismaClient } = require("@prisma/client")
 
 const prisma = new PrismaClient()
 
+async function connectDB() {
+  try {
+    await prisma.$connect()
+    console.log("Banco conectado")
+  } catch (err) {
+    console.log("Erro banco:", err)
+  }
+}
+
+connectDB()
+
 const app = express()
 
-app.use(cors())
+app.use(cors({
+  origin: "*"
+}))
+
 app.use(express.json())
 
 app.get("/", (req, res) => {
@@ -128,6 +142,8 @@ return res.json({
   }
 })
 
-app.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000")
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`)
 })
