@@ -1,6 +1,6 @@
 
 import '../style/Dashboard.css'
-import Carrossel from "../components/Carrossel/Carrossel"
+
 
 
 
