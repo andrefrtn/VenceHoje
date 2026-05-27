@@ -21,4 +21,22 @@ model User {
   birthDate DateTime? 
 
   createdAt DateTime @default(now())
+
+  contas    Conta[]
+}
+
+model Conta {
+  id          Int      @id @default(autoincrement())
+
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  descricao   String
+  valor       Float
+  vencimento  DateTime
+  categoria   String?
+  pago        Boolean  @default(false)
+  pagoEm      DateTime?
+
+  createdAt   DateTime @default(now())
 }
