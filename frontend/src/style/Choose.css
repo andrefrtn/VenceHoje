@@ -24,6 +24,26 @@ body{
     #0F1117;
 }
 
+
+.vazio-icon svg {
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  will-change: transform;
+}
+
+.vazio-icon svg path {
+  fill: rgb(11, 192, 239);
+  transition: fill 0.3s ease;
+}
+
+
+
+.vazio-icon:hover svg path {
+  fill: #ffffff; 
+}
+
+
+
+
 .topSection{
     width: 100%;
 
