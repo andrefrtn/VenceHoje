@@ -227,18 +227,20 @@ app.get("/myinfos", authMiddleware, async (req, res) => {
 
 app.post("/myinfos", authMiddleware, async (req, res) => {
   try {
-    const {
-      salario,
-      rendaExtra,
-      gastosFixos,
-      gastosVariaveis,
-      aluguel,
-      financiamento,
-      cartao,
-      dependentes,
-      objetivo,
-      reserva
-    } = req.body
+  const {
+    salario,
+    rendaExtra,
+    gastosFixos,
+    gastosVariaveis,
+    aluguel,
+    financiamento,
+    cartao,
+    dependentes,
+    objetivo,
+    reserva,
+    investimentos,
+    dividas
+  } = req.body
 
     const existing = await prisma.userInfo.findUnique({
       where: {
@@ -261,7 +263,9 @@ app.post("/myinfos", authMiddleware, async (req, res) => {
           cartao: cartao ? parseFloat(cartao) : null,
           dependentes: dependentes ? parseInt(dependentes) : 0,
           objetivo,
-          reserva
+          reserva,
+          investimentos,
+          dividas: dividas ? parseFloat(dividas) : null,
         }
       })
 
@@ -283,7 +287,10 @@ app.post("/myinfos", authMiddleware, async (req, res) => {
         dependentes: dependentes ? parseInt(dependentes) : 0,
 
         objetivo,
-        reserva
+        reserva,
+
+        investimentos,
+        dividas: dividas ? parseFloat(dividas) : null,
       }
     })
 

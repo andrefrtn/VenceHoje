@@ -86,6 +86,9 @@ export default function Verinfos() {
             <div className="info-box"><span>Dependentes</span><strong>{infos.dependentes || 0}</strong></div>
             <div className="info-box"><span>Objetivo</span><strong>{infos.objetivo || 'Não definido'}</strong></div>
             <div className="info-box"><span>Reserva</span><strong>{infos.reserva || 'Não definido'}</strong></div>
+            <div className="info-box"><span>Investimentos</span><strong>{infos.investimentos || 'Não possui'}</strong></div>
+            <div className="info-box"><span>Dívidas</span><strong>R$ {infos.dividas || 0}</strong></div>
+            
           </div>
         </div>
       </div>
