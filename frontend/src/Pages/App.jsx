@@ -8,6 +8,8 @@ import { Routes, Route } from 'react-router-dom'
 import Dashboard from './Dashboard'
 import Calendar from './Calendar'
 import Choose from './choose'
+import Myinfos from './myinfos'
+import Verinfos from './verinfos'
 
 export default function App() {
   return (
@@ -35,6 +37,26 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+
+            <Route
+          path="/myinfos"
+          element={
+            <ProtectedRoute>
+              <Myinfos />
+            </ProtectedRoute>
+          }
+        />
+
+
+          <Route
+            path="/verinfos"
+            element={
+              <ProtectedRoute>
+                <Verinfos />
+              </ProtectedRoute>
+            }
+          />
 
       </Routes>
     </>

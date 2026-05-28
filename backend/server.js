@@ -207,6 +207,97 @@ app.delete("/contas/:id", authMiddleware, async (req, res) => {
   }
 })
 
+
+app.get("/myinfos", authMiddleware, async (req, res) => {
+  try {
+    const infos = await prisma.userInfo.findUnique({
+      where: {
+        userId: req.userId
+      }
+    })
+
+    return res.json(infos)
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      message: "Erro ao buscar informações"
+    })
+  }
+})
+
+app.post("/myinfos", authMiddleware, async (req, res) => {
+  try {
+    const {
+      salario,
+      rendaExtra,
+      gastosFixos,
+      gastosVariaveis,
+      aluguel,
+      financiamento,
+      cartao,
+      dependentes,
+      objetivo,
+      reserva
+    } = req.body
+
+    const existing = await prisma.userInfo.findUnique({
+      where: {
+        userId: req.userId
+      }
+    })
+
+    if (existing) {
+      const updated = await prisma.userInfo.update({
+        where: {
+          userId: req.userId
+        },
+        data: {
+          salario: salario ? parseFloat(salario) : null,
+          rendaExtra: rendaExtra ? parseFloat(rendaExtra) : null,
+          gastosFixos: gastosFixos ? parseFloat(gastosFixos) : null,
+          gastosVariaveis: gastosVariaveis ? parseFloat(gastosVariaveis) : null,
+          aluguel: aluguel ? parseFloat(aluguel) : null,
+          financiamento: financiamento ? parseFloat(financiamento) : null,
+          cartao: cartao ? parseFloat(cartao) : null,
+          dependentes: dependentes ? parseInt(dependentes) : 0,
+          objetivo,
+          reserva
+        }
+      })
+
+      return res.json(updated)
+    }
+
+    const created = await prisma.userInfo.create({
+      data: {
+        userId: req.userId,
+
+        salario: salario ? parseFloat(salario) : null,
+        rendaExtra: rendaExtra ? parseFloat(rendaExtra) : null,
+        gastosFixos: gastosFixos ? parseFloat(gastosFixos) : null,
+        gastosVariaveis: gastosVariaveis ? parseFloat(gastosVariaveis) : null,
+        aluguel: aluguel ? parseFloat(aluguel) : null,
+        financiamento: financiamento ? parseFloat(financiamento) : null,
+        cartao: cartao ? parseFloat(cartao) : null,
+
+        dependentes: dependentes ? parseInt(dependentes) : 0,
+
+        objetivo,
+        reserva
+      }
+    })
+
+    return res.status(201).json(created)
+
+  } catch (err) {
+    console.log(err)
+
+    return res.status(500).json({
+      message: "Erro ao salvar informações"
+    })
+  }
+})
+
 const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
