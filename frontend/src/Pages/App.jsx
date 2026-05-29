@@ -10,6 +10,7 @@ import Calendar from './Calendar'
 import Choose from './choose'
 import Myinfos from './myinfos'
 import Verinfos from './verinfos'
+import Contas from './contas'
 
 export default function App() {
   return (
@@ -54,6 +55,17 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Verinfos />
+              </ProtectedRoute>
+            }
+          />
+
+          
+
+              <Route
+            path="/contas"
+            element={
+              <ProtectedRoute>
+                <Contas />
               </ProtectedRoute>
             }
           />

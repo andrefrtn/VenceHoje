@@ -1,0 +1,146 @@
+.contas-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 22px;
+  margin-top: 25px;
+}
+
+.contas-lista {
+  background: #13161C;
+  border: 1px solid #252A34;
+  border-radius: 22px;
+  padding: 18px;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.conta-card {
+  background: #171A21;
+  border: 1px solid #252A34;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.conta-card.active {
+  background: #1A1F29;
+  border: 1px solid #0BC0EF;
+}
+
+.conta-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 10px;
+}
+
+.conta-title {
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.conta-valor {
+  color: #0BC0EF;
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.conta-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge-recorrente {
+  background: rgba(11, 192, 239, 0.15);
+  color: #0BC0EF;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.conta-detalhes {
+  background: #13161C;
+  border: 1px solid #252A34;
+  border-radius: 22px;
+  padding: 24px;
+  min-height: 500px;
+}
+
+.empty-state {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8B95A7;
+}
+
+.detalhes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 12px;
+}
+
+.valor-destaque {
+  color: #0BC0EF;
+  font-size: 1.3rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.detalhes-body {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.label {
+  color: #8B95A7;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.muted {
+  color: #8B95A7;
+}
+
+.verde {
+  color: #4ade80;
+}
+
+.vermelho {
+  color: #f87171;
+}
+
+.descricao {
+  color: #949494;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+
+.infos {
+  color: #ffffff;
+}
+
+p,.descricao{
+color: white;
+
+}
+@media (max-width: 900px) {
+  .contas-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .detalhes-body {
+    grid-template-columns: 1fr;
+  }
+}
