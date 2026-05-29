@@ -138,10 +138,12 @@ app.get("/contas", authMiddleware, async (req, res) => {
 
 app.post("/contas", authMiddleware, async (req, res) => {
   try {
-    const { descricao, valor, vencimento, categoria } = req.body
+    const { descricao, valor, vencimento, categoria, pago } = req.body
 
     if (!descricao || !valor || !vencimento) {
-      return res.status(400).json({ message: "Descrição, valor e vencimento são obrigatórios" })
+      return res.status(400).json({
+        message: "Descrição, valor e vencimento são obrigatórios"
+      })
     }
 
     const conta = await prisma.conta.create({
@@ -151,14 +153,19 @@ app.post("/contas", authMiddleware, async (req, res) => {
         valor: parseFloat(valor),
         vencimento: new Date(vencimento),
         categoria: categoria || null,
-        pago: false
+
+        pago: pago || false,
+        pagoEm: pago ? new Date() : null
       }
     })
 
     return res.status(201).json(conta)
+
   } catch (err) {
     console.log(err)
-    return res.status(500).json({ message: "Erro ao criar conta" })
+    return res.status(500).json({
+      message: "Erro ao criar conta"
+    })
   }
 })
 

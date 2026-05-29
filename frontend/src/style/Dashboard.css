@@ -466,3 +466,62 @@
   font-weight: 700;
 }
 .juros-total { color: #f87171; font-size: 1.05rem; }
+
+.switch-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #13161C;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.switch-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 58px;
+  height: 32px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  background: #3b3b3b;
+  transition: .3s;
+  border-radius: 999px;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  left: 4px;
+  top: 4px;
+  background: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+.switch input:checked + .slider {
+  background: rgb(8, 144, 179);
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(26px);
+}

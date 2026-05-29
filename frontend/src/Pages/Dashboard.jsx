@@ -63,9 +63,13 @@ export default function Dashboard() {
   const [erro, setErro] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [form, setForm] = useState({
-    descricao: '', valor: '', vencimento: '', categoria: ''
-  })
+const [form, setForm] = useState({
+  descricao: '',
+  valor: '',
+  vencimento: '',
+  categoria: '',
+  pago: false
+})
   const [juros, setJuros] = useState({})
 
   async function fetchContas() {
@@ -101,7 +105,13 @@ export default function Dashboard() {
         const d = await res.json()
         setErro(d.message || 'Erro ao cadastrar')
       } else {
-        setForm({ descricao: '', valor: '', vencimento: '', categoria: '' })
+        setForm({
+        descricao: '',
+        valor: '',
+        vencimento: '',
+        categoria: '',
+        pago: false
+      })
         setShowForm(false)
         fetchContas()
       }
@@ -183,6 +193,8 @@ export default function Dashboard() {
         {showForm && (
           <div className="dash-form-wrap">
             <h2 className="form-title">Cadastrar nova conta</h2>
+
+            
             {erro && <p className="dash-erro">{erro}</p>}
             <form className="dash-form" onSubmit={handleSubmit}>
               <div className="form-row">
@@ -196,6 +208,7 @@ export default function Dashboard() {
                     required
                   />
                 </div>
+                
                 <div className="form-group form-group-sm">
                   <label>Valor (R$) *</label>
                   <input
@@ -209,6 +222,7 @@ export default function Dashboard() {
                   />
                 </div>
               </div>
+              
               <div className="form-row">
                 <div className="form-group form-group-sm">
                   <label>Vencimento *</label>
@@ -230,6 +244,23 @@ export default function Dashboard() {
                   </select>
                 </div>
               </div>
+              <div className="switch-wrap">
+  <span className="switch-label">Conta já foi paga?</span>
+
+  <label className="switch">
+    <input
+      type="checkbox"
+      checked={form.pago}
+      onChange={e =>
+        setForm(f => ({
+          ...f,
+          pago: e.target.checked
+        }))
+      }
+    />
+    <span className="slider"></span>
+  </label>
+</div>
               <button type="submit" className="btn-submit" disabled={submitting}>
                 {submitting ? 'Salvando...' : 'Salvar conta'}
               </button>
