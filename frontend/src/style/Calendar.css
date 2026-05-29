@@ -1,0 +1,290 @@
+.calendar-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+
+  background: #13161C;
+  border: 1px solid #252A34;
+  border-radius: 28px;
+}
+.t{
+    color: white;
+}
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.calendar-title {
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.calendar-nav {
+  width: 42px;
+  height: 42px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #171A21;
+  border: 1px solid #252A34;
+
+  color: #8B95A7;
+  font-size: 1.1rem;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.calendar-nav:hover {
+  border-color: #38bdf8;
+  color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+
+  margin-bottom: 10px;
+}
+
+.calendar-weekdays span {
+  color: #8B95A7;
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+
+  position: relative;
+  z-index: 1;
+}
+
+.calendar-day {
+  position: relative;
+  overflow: visible;
+
+  min-height: 82px;
+
+  background: #171A21;
+  border: 1px solid #252A34;
+  border-radius: 16px;
+
+  padding: 10px;
+
+  transition: 0.18s;
+}
+
+.calendar-day:hover {
+  transform: translateY(-2px);
+  border-color: #38bdf8;
+  z-index: 20;
+}
+
+.calendar-day.empty {
+  background: transparent;
+  border: none;
+}
+
+.day-number {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.dots-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+
+  margin-top: 10px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.dot-vencida {
+  box-shadow: 0 0 8px rgba(248, 113, 113, 0.9);
+  border: 1px solid #fff;
+}
+
+.calendar-tooltip {
+  position: absolute;
+
+  top: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 230px;
+
+  background: #1B2029;
+  border: 1px solid #252A34;
+  border-radius: 16px;
+
+  padding: 14px;
+
+  z-index: 999;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition: 0.18s;
+
+  backdrop-filter: blur(8px);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+.calendar-day:hover .calendar-tooltip {
+  opacity: 1;
+}
+
+.tooltip-conta {
+  display: flex;
+  gap: 10px;
+
+  margin-bottom: 12px;
+}
+
+.tooltip-conta:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-color {
+  width: 11px;
+  height: 11px;
+
+  border-radius: 50%;
+
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.tooltip-conta strong {
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.tooltip-conta p {
+  margin-top: 3px;
+
+  color: #8B95A7;
+  font-size: 0.76rem;
+}
+
+.vencida-text {
+  color: #f87171;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.calendar-legenda {
+  margin-top: 28px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.legenda-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  background: #171A21;
+  border: 1px solid #252A34;
+
+  border-radius: 999px;
+  padding: 7px 12px;
+
+  color: #8B95A7;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.legenda-cor {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+@media (max-width: 700px) {
+  .calendar-page {
+    padding: 28px 16px 60px;
+  }
+
+  .calendar-day {
+    min-height: 65px;
+    padding: 8px;
+  }
+
+  .calendar-title {
+    font-size: 1.3rem;
+  }
+
+  .day-number {
+    font-size: 0.8rem;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+  }
+
+  .calendar-tooltip {
+    width: 190px;
+  }
+}
+
+.calendar-arrow {
+  width: 18px;
+  height: 18px;
+
+  padding: 12px;
+
+  background: #171A21;
+  border: 1px solid #252A34;
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  transition: 0.18s;
+
+  flex-shrink: 0;
+}
+
+.calendar-arrow:hover {
+  border-color: #38bdf8;
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.15);
+}
+
+.dot-paga {
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.7);
+  border: 1px solid rgba(255,255,255,0.7);
+  opacity: 0.9;
+}
+
+.paga-text {
+  color: #4ade80;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
