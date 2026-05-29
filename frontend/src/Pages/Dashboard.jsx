@@ -9,27 +9,28 @@ const CATEGORIAS = [
   'Educação', 'Lazer', 'Assinatura', 'Cartão', 'Outro'
 ]
 
-function getStatus(conta) {
-  const pago =
-    conta.pago === true ||
-    conta.pago === 'true' ||
-    conta.pago === 1
+function parseDateLocal(dateStr) {
+  const s = typeof dateStr === 'string' ? dateStr : new Date(dateStr).toISOString()
+  const [ano, mes, dia] = s.slice(0, 10).split('-').map(Number)
+  return { ano, mes: mes - 1, dia }
+}
 
-  if (pago) return 'pago'
+function getStatus(conta) {
+  if (conta.pago === true || conta.pago === 'true' || conta.pago === 1) return 'pago'
 
   const hoje = new Date()
   hoje.setHours(0, 0, 0, 0)
 
-  const venc = new Date(conta.vencimento)
-  venc.setHours(0, 0, 0, 0)
+  const { ano, mes, dia } = parseDateLocal(conta.vencimento)
+  const venc = new Date(ano, mes, dia)
 
   if (venc < hoje) return 'vencido'
   return 'avencer'
 }
 
 function formatDate(dateStr) {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('pt-BR')
+  const { ano, mes, dia } = parseDateLocal(dateStr)
+  return new Date(ano, mes, dia).toLocaleDateString('pt-BR')
 }
 
 function formatMoney(val) {
@@ -38,7 +39,8 @@ function formatMoney(val) {
 
 function calcJuros(valor, vencimento, taxaMensal, tipo) {
   const hoje = new Date()
-  const venc = new Date(vencimento)
+  const { ano, mes, dia } = parseDateLocal(vencimento)
+  const venc = new Date(ano, mes, dia)
   const diffMs = hoje - venc
   const diasAtraso = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)))
   const mesesAtraso = diasAtraso / 30
@@ -53,11 +55,7 @@ function calcJuros(valor, vencimento, taxaMensal, tipo) {
     total = valor * (1 + taxa * mesesAtraso)
   }
 
-  return {
-    diasAtraso,
-    jurosValor: total - valor,
-    total
-  }
+  return { diasAtraso, jurosValor: total - valor, total }
 }
 
 export default function Dashboard() {
@@ -221,31 +219,41 @@ export default function Dashboard() {
     }
   }
 
-  const contasFiltradas = contas
-    .filter(c => getStatus(c) === aba)
-    .filter(conta => {
-      if (!conta.grupoRecorrencia) return true
-      if (conta.pago) return true 
+const contasFiltradas = contas
+  .filter(c => getStatus(c) === aba)
+  .filter(conta => {
+    if (!conta.grupoRecorrencia) return true
 
-      const anteriores = contas.filter(c =>
-        c.grupoRecorrencia === conta.grupoRecorrencia &&
-        c.numeroParcela < conta.numeroParcela &&
-        !c.pago
-      )
-      return anteriores.length === 0
+    if (conta.pago) return true
+
+    if (conta.numeroParcela === undefined || conta.numeroParcela === null) return true
+
+    const parcelaAtual = Number(conta.numeroParcela)
+
+    const anterioresNaoPagos = contas.filter(c => {
+      if (c.grupoRecorrencia !== conta.grupoRecorrencia) return false
+      if (c.pago) return false
+      if (c.numeroParcela === undefined || c.numeroParcela === null) return false
+
+      const parcela = Number(c.numeroParcela)
+      return parcela < parcelaAtual
     })
 
-  const totalAvencer = contas
-    .filter(c => getStatus(c) === 'avencer')
-    .reduce((s, c) => s + Number(c.valor), 0)
+    return anterioresNaoPagos.length === 0
+  })
 
-  const totalVencido = contas
-    .filter(c => getStatus(c) === 'vencido')
-    .reduce((s, c) => s + Number(c.valor), 0)
+const totalAvencer = contas
+  .filter(c => getStatus(c) === 'avencer')
+  .reduce((s, c) => s + Number(c.valor), 0)
 
-  const totalPago = contas
-    .filter(c => getStatus(c) === 'pago')
-    .reduce((s, c) => s + Number(c.valor), 0)
+const totalVencido = contas
+  .filter(c => getStatus(c) === 'vencido')
+  .reduce((s, c) => s + Number(c.valor), 0)
+
+const totalPago = contas
+  .filter(c => getStatus(c) === 'pago')
+  .reduce((s, c) => s + Number(c.valor), 0)
+
 
   return (
     <>

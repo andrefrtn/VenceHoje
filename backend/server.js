@@ -49,7 +49,6 @@ app.get("/", (req, res) => {
   res.send("API rodando")
 })
 
-
 app.post("/register", async (req, res) => {
   try {
     const { name, cpf, email, password, phone, birthDate } = req.body
@@ -70,9 +69,7 @@ app.post("/register", async (req, res) => {
     })
 
     if (userExists) {
-      return res.status(400).json({
-        message: "Email já existe"
-      })
+      return res.status(400).json({ message: "Email já existe" })
     }
 
     const cpfExists = await prisma.user.findUnique({
@@ -80,9 +77,7 @@ app.post("/register", async (req, res) => {
     })
 
     if (cpfExists) {
-      return res.status(400).json({
-        message: "CPF já existe"
-      })
+      return res.status(400).json({ message: "CPF já existe" })
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -101,17 +96,11 @@ app.post("/register", async (req, res) => {
       }
     })
 
-    return res.status(201).json({
-      message: "Conta criada"
-    })
+    return res.status(201).json({ message: "Conta criada" })
 
   } catch (err) {
     console.log("ERRO REGISTER:", err)
-
-    return res.status(500).json({
-      message: "Erro interno",
-      error: err.message
-    })
+    return res.status(500).json({ message: "Erro interno", error: err.message })
   }
 })
 
@@ -145,7 +134,6 @@ app.post("/login", async (req, res) => {
   }
 })
 
-
 app.get("/contas", authMiddleware, async (req, res) => {
   try {
     const contas = await prisma.conta.findMany({
@@ -159,21 +147,19 @@ app.get("/contas", authMiddleware, async (req, res) => {
   }
 })
 
-
 app.post("/contas", authMiddleware, async (req, res) => {
   try {
-
-const {
-  descricao,
-  descricaoDetalhada,
-  valor,
-  vencimento,
-  categoria,
-  pago,
-  repetir,
-  quantidadeMeses,
-  parcelasPagas
-} = req.body
+    const {
+      descricao,
+      descricaoDetalhada,
+      valor,
+      vencimento,
+      categoria,
+      pago,
+      repetir,
+      quantidadeMeses,
+      parcelasPagas
+    } = req.body
 
     if (!descricao || !valor || !vencimento) {
       return res.status(400).json({
@@ -181,55 +167,32 @@ const {
       })
     }
 
-    const totalMeses = repetir
-      ? parseInt(quantidadeMeses)
-      : 1
-
+    const totalMeses = repetir ? parseInt(quantidadeMeses) : 1
     const contasCriadas = []
-
-    const grupoRecorrencia = repetir
-  ? crypto.randomUUID()
-  : null
+    const grupoRecorrencia = repetir ? crypto.randomUUID() : null
 
     for (let i = 0; i < totalMeses; i++) {
-
       const dataVencimento = new Date(vencimento)
+      dataVencimento.setMonth(dataVencimento.getMonth() + i)
 
-      dataVencimento.setMonth(
-        dataVencimento.getMonth() + i
-      )
-const estaPaga =
-pago && i < parcelasPagas
+      const estaPaga = pago && i < parcelasPagas
 
-const conta = await prisma.conta.create({
-  data: {
-    userId: req.userId,
-
-    descricao,
-    descricaoDetalhada,
-
-    valor: parseFloat(valor),
-
-    vencimento: dataVencimento,
-
-    categoria: categoria || null,
-
-      pago: estaPaga,
-      pagoEm: estaPaga
-        ? new Date()
-        : null,
-
-    repetir: repetir || false,
-
-    quantidadeMeses: repetir
-      ? parseInt(quantidadeMeses)
-      : 1,
-
-    grupoRecorrencia,
-
-    numeroParcela: i + 1
-  }
-})
+      const conta = await prisma.conta.create({
+        data: {
+          userId: req.userId,
+          descricao,
+          descricaoDetalhada,
+          valor: parseFloat(valor),
+          vencimento: dataVencimento,
+          categoria: categoria || null,
+          pago: estaPaga,
+          pagoEm: estaPaga ? new Date() : null,
+          repetir: repetir || false,
+          quantidadeMeses: repetir ? parseInt(quantidadeMeses) : 1,
+          grupoRecorrencia,
+          numeroParcela: i + 1
+        }
+      })
 
       contasCriadas.push(conta)
     }
@@ -238,17 +201,15 @@ const conta = await prisma.conta.create({
 
   } catch (err) {
     console.log(err)
-
-    return res.status(500).json({
-      message: "Erro ao cadastrar conta"
-    })
+    return res.status(500).json({ message: "Erro ao cadastrar conta" })
   }
 })
 
 app.patch("/contas/:id/pagar", authMiddleware, async (req, res) => {
   try {
     const id = parseInt(req.params.id)
-    const { pago } = req.body
+    const { pago, parcelas: parcelasReq } = req.body
+    const parcelas = parseInt(parcelasReq) || 1
 
     const conta = await prisma.conta.findFirst({
       where: { id, userId: req.userId }
@@ -256,53 +217,50 @@ app.patch("/contas/:id/pagar", authMiddleware, async (req, res) => {
 
     if (!conta) return res.status(404).json({ message: "Conta não encontrada" })
 
-if (conta.grupoRecorrencia && pago) {
+    if (conta.grupoRecorrencia) {
+      if (pago) {
+        const contasGrupo = await prisma.conta.findMany({
+          where: { 
+            grupoRecorrencia: conta.grupoRecorrencia, 
+            pago: false,
+            numeroParcela: { gte: conta.numeroParcela } 
+          },
+          orderBy: { numeroParcela: "asc" }
+        })
+        
+        const ids = contasGrupo.slice(0, parcelas).map(c => c.id)
+        
+        await prisma.conta.updateMany({
+          where: { id: { in: ids } },
+          data: { pago: true, pagoEm: new Date() }
+        })
+        return res.json({ message: "Parcelas pagas" })
 
-  const parcelas = parseInt(req.body.parcelas) || 1
-
-  const contasGrupo = await prisma.conta.findMany({
-    where: {
-      grupoRecorrencia: conta.grupoRecorrencia,
-      pago: false
-    },
-    orderBy: {
-      numeroParcela: "asc"
-    }
-  })
-
-  const ids = contasGrupo
-    .slice(0, parcelas)
-    .map(c => c.id)
-
-  await prisma.conta.updateMany({
-    where: {
-      id: {
-        in: ids
+      } else {
+        const contasGrupo = await prisma.conta.findMany({
+          where: { 
+            grupoRecorrencia: conta.grupoRecorrencia, 
+            pago: true,
+            numeroParcela: { lte: conta.numeroParcela }  
+          },
+          orderBy: { numeroParcela: "desc" }
+        })
+        
+        const ids = contasGrupo.slice(0, parcelas).map(c => c.id)
+        
+        await prisma.conta.updateMany({
+          where: { id: { in: ids } },
+          data: { pago: false, pagoEm: null }
+        })
+        return res.json({ message: "Parcelas desfeitas" })
       }
-    },
-    data: {
-      pago: true,
-      pagoEm: new Date()
     }
-  })
 
-  return res.json({
-    message: "Parcelas pagas"
-  })
-
-} else {
-
-  const updated = await prisma.conta.update({
-    where: { id },
-    data: {
-      pago: !!pago,
-      pagoEm: pago ? new Date() : null
-    }
-  })
-
-  return res.json(updated)
-}
-
+    const updated = await prisma.conta.update({
+      where: { id },
+      data: { pago: !!pago, pagoEm: pago ? new Date() : null }
+    })
+    return res.json(updated)
 
   } catch (err) {
     console.log(err)
@@ -329,101 +287,70 @@ app.delete("/contas/:id", authMiddleware, async (req, res) => {
   }
 })
 
-
 app.get("/myinfos", authMiddleware, async (req, res) => {
   try {
     const infos = await prisma.userInfo.findUnique({
-      where: {
-        userId: req.userId
-      }
+      where: { userId: req.userId }
     })
-
     return res.json(infos)
   } catch (err) {
     console.log(err)
-    return res.status(500).json({
-      message: "Erro ao buscar informações"
-    })
+    return res.status(500).json({ message: "Erro ao buscar informações" })
   }
 })
 
 app.post("/myinfos", authMiddleware, async (req, res) => {
   try {
-  const {
-    salario,
-    rendaExtra,
-    gastosFixos,
-    gastosVariaveis,
-    aluguel,
-    financiamento,
-    cartao,
-    dependentes,
-    objetivo,
-    reserva,
-    investimentos,
-    dividas
-  } = req.body
+    const {
+      salario,
+      rendaExtra,
+      gastosFixos,
+      gastosVariaveis,
+      aluguel,
+      financiamento,
+      cartao,
+      dependentes,
+      objetivo,
+      reserva,
+      investimentos,
+      dividas
+    } = req.body
 
     const existing = await prisma.userInfo.findUnique({
-      where: {
-        userId: req.userId
-      }
+      where: { userId: req.userId }
     })
+
+    const data = {
+      salario: salario ? parseFloat(salario) : null,
+      rendaExtra: rendaExtra ? parseFloat(rendaExtra) : null,
+      gastosFixos: gastosFixos ? parseFloat(gastosFixos) : null,
+      gastosVariaveis: gastosVariaveis ? parseFloat(gastosVariaveis) : null,
+      aluguel: aluguel ? parseFloat(aluguel) : null,
+      financiamento: financiamento ? parseFloat(financiamento) : null,
+      cartao: cartao ? parseFloat(cartao) : null,
+      dependentes: dependentes ? parseInt(dependentes) : 0,
+      objetivo,
+      reserva,
+      investimentos,
+      dividas: dividas ? parseFloat(dividas) : null,
+    }
 
     if (existing) {
       const updated = await prisma.userInfo.update({
-        where: {
-          userId: req.userId
-        },
-        data: {
-          salario: salario ? parseFloat(salario) : null,
-          rendaExtra: rendaExtra ? parseFloat(rendaExtra) : null,
-          gastosFixos: gastosFixos ? parseFloat(gastosFixos) : null,
-          gastosVariaveis: gastosVariaveis ? parseFloat(gastosVariaveis) : null,
-          aluguel: aluguel ? parseFloat(aluguel) : null,
-          financiamento: financiamento ? parseFloat(financiamento) : null,
-          cartao: cartao ? parseFloat(cartao) : null,
-          dependentes: dependentes ? parseInt(dependentes) : 0,
-          objetivo,
-          reserva,
-          investimentos,
-          dividas: dividas ? parseFloat(dividas) : null,
-        }
+        where: { userId: req.userId },
+        data
       })
-
       return res.json(updated)
     }
 
     const created = await prisma.userInfo.create({
-      data: {
-        userId: req.userId,
-
-        salario: salario ? parseFloat(salario) : null,
-        rendaExtra: rendaExtra ? parseFloat(rendaExtra) : null,
-        gastosFixos: gastosFixos ? parseFloat(gastosFixos) : null,
-        gastosVariaveis: gastosVariaveis ? parseFloat(gastosVariaveis) : null,
-        aluguel: aluguel ? parseFloat(aluguel) : null,
-        financiamento: financiamento ? parseFloat(financiamento) : null,
-        cartao: cartao ? parseFloat(cartao) : null,
-
-        dependentes: dependentes ? parseInt(dependentes) : 0,
-
-        objetivo,
-        reserva,
-
-        investimentos,
-        dividas: dividas ? parseFloat(dividas) : null,
-      }
+      data: { userId: req.userId, ...data }
     })
-
     return res.status(201).json(created)
 
   } catch (err) {
     console.log(err)
-
-    return res.status(500).json({
-      message: "Erro ao salvar informações"
-    })
+    return res.status(500).json({ message: "Erro ao salvar informações" })
   }
 })
 
