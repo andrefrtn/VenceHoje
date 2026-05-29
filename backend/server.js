@@ -4,6 +4,7 @@ const express = require("express")
 const cors = require("cors")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
+const crypto = require("crypto")
 
 const { PrismaClient } = require("@prisma/client")
 
@@ -64,11 +65,25 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ message: "CPF inválido" })
     }
 
-    const userExists = await prisma.user.findUnique({ where: { email } })
-    if (userExists) return res.status(400).json({ message: "Email já existe" })
+    const userExists = await prisma.user.findUnique({
+      where: { email }
+    })
 
-    const cpfExists = await prisma.user.findUnique({ where: { cpf: cleanCpf } })
-    if (cpfExists) return res.status(400).json({ message: "CPF já existe" })
+    if (userExists) {
+      return res.status(400).json({
+        message: "Email já existe"
+      })
+    }
+
+    const cpfExists = await prisma.user.findUnique({
+      where: { cpf: cleanCpf }
+    })
+
+    if (cpfExists) {
+      return res.status(400).json({
+        message: "CPF já existe"
+      })
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
@@ -79,16 +94,24 @@ app.post("/register", async (req, res) => {
         email,
         password: hashedPassword,
         phone: cleanPhone,
-        birthDate: birthDate && !isNaN(new Date(birthDate))
-          ? new Date(birthDate)
-          : null
+        birthDate:
+          birthDate && !isNaN(new Date(birthDate))
+            ? new Date(birthDate)
+            : null
       }
     })
 
-    return res.status(201).json({ message: "Conta criada" })
+    return res.status(201).json({
+      message: "Conta criada"
+    })
+
   } catch (err) {
     console.log("ERRO REGISTER:", err)
-    return res.status(500).json({ message: "Erro interno", error: err.message })
+
+    return res.status(500).json({
+      message: "Erro interno",
+      error: err.message
+    })
   }
 })
 
@@ -136,9 +159,21 @@ app.get("/contas", authMiddleware, async (req, res) => {
   }
 })
 
+
 app.post("/contas", authMiddleware, async (req, res) => {
   try {
-    const { descricao, valor, vencimento, categoria, pago } = req.body
+
+const {
+  descricao,
+  descricaoDetalhada,
+  valor,
+  vencimento,
+  categoria,
+  pago,
+  repetir,
+  quantidadeMeses,
+  parcelasPagas
+} = req.body
 
     if (!descricao || !valor || !vencimento) {
       return res.status(400).json({
@@ -146,25 +181,66 @@ app.post("/contas", authMiddleware, async (req, res) => {
       })
     }
 
-    const conta = await prisma.conta.create({
-      data: {
-        userId: req.userId,
-        descricao,
-        valor: parseFloat(valor),
-        vencimento: new Date(vencimento),
-        categoria: categoria || null,
+    const totalMeses = repetir
+      ? parseInt(quantidadeMeses)
+      : 1
 
-        pago: pago || false,
-        pagoEm: pago ? new Date() : null
-      }
-    })
+    const contasCriadas = []
 
-    return res.status(201).json(conta)
+    const grupoRecorrencia = repetir
+  ? crypto.randomUUID()
+  : null
+
+    for (let i = 0; i < totalMeses; i++) {
+
+      const dataVencimento = new Date(vencimento)
+
+      dataVencimento.setMonth(
+        dataVencimento.getMonth() + i
+      )
+const estaPaga =
+pago && i < parcelasPagas
+
+const conta = await prisma.conta.create({
+  data: {
+    userId: req.userId,
+
+    descricao,
+    descricaoDetalhada,
+
+    valor: parseFloat(valor),
+
+    vencimento: dataVencimento,
+
+    categoria: categoria || null,
+
+      pago: estaPaga,
+      pagoEm: estaPaga
+        ? new Date()
+        : null,
+
+    repetir: repetir || false,
+
+    quantidadeMeses: repetir
+      ? parseInt(quantidadeMeses)
+      : 1,
+
+    grupoRecorrencia,
+
+    numeroParcela: i + 1
+  }
+})
+
+      contasCriadas.push(conta)
+    }
+
+    return res.status(201).json(contasCriadas)
 
   } catch (err) {
     console.log(err)
+
     return res.status(500).json({
-      message: "Erro ao criar conta"
+      message: "Erro ao cadastrar conta"
     })
   }
 })
@@ -180,15 +256,54 @@ app.patch("/contas/:id/pagar", authMiddleware, async (req, res) => {
 
     if (!conta) return res.status(404).json({ message: "Conta não encontrada" })
 
-    const updated = await prisma.conta.update({
-      where: { id },
-      data: {
-        pago: !!pago,
-        pagoEm: pago ? new Date() : null
-      }
-    })
+if (conta.grupoRecorrencia && pago) {
 
-    return res.json(updated)
+  const parcelas = parseInt(req.body.parcelas) || 1
+
+  const contasGrupo = await prisma.conta.findMany({
+    where: {
+      grupoRecorrencia: conta.grupoRecorrencia,
+      pago: false
+    },
+    orderBy: {
+      numeroParcela: "asc"
+    }
+  })
+
+  const ids = contasGrupo
+    .slice(0, parcelas)
+    .map(c => c.id)
+
+  await prisma.conta.updateMany({
+    where: {
+      id: {
+        in: ids
+      }
+    },
+    data: {
+      pago: true,
+      pagoEm: new Date()
+    }
+  })
+
+  return res.json({
+    message: "Parcelas pagas"
+  })
+
+} else {
+
+  const updated = await prisma.conta.update({
+    where: { id },
+    data: {
+      pago: !!pago,
+      pagoEm: pago ? new Date() : null
+    }
+  })
+
+  return res.json(updated)
+}
+
+
   } catch (err) {
     console.log(err)
     return res.status(500).json({ message: "Erro ao atualizar conta" })

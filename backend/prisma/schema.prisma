@@ -34,14 +34,25 @@ model Conta {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   descricao   String
+
+  descricaoDetalhada String?
+
   valor       Float
   vencimento  DateTime
+
   categoria   String?
+
   pago        Boolean  @default(false)
   pagoEm      DateTime?
 
+  repetir            Boolean @default(false)
+  quantidadeMeses    Int?    @default(1)
+
   createdAt   DateTime @default(now())
-}
+
+  grupoRecorrencia String?
+  numeroParcela    Int?
+  }
 
 
 model UserInfo {

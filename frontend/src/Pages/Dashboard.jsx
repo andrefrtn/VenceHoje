@@ -65,10 +65,18 @@ export default function Dashboard() {
   const [submitting, setSubmitting] = useState(false)
 const [form, setForm] = useState({
   descricao: '',
+  descricaoDetalhada: '',
   valor: '',
   vencimento: '',
   categoria: '',
-  pago: false
+
+  pago: false,
+
+  repetir: false,
+
+  quantidadeMeses: 1,
+
+  parcelasPagas: 0
 })
   const [juros, setJuros] = useState({})
 
@@ -124,13 +132,28 @@ const [form, setForm] = useState({
 
   async function togglePago(conta) {
     try {
+
+      let parcelas = 1
+
+      if (conta.repetir && !conta.pago) {
+
+        const resposta = prompt(
+          "Quantas parcelas foram pagas?"
+        )
+
+        parcelas = parseInt(resposta) || 1
+      }
+      
       await fetch(`${API}/contas/${conta.id}/pagar`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ pago: !conta.pago })
+        body: JSON.stringify({
+        pago: !conta.pago,
+        parcelas
+      })
       })
       fetchContas()
     } catch {
@@ -151,7 +174,22 @@ const [form, setForm] = useState({
     }
   }
 
-  const contasFiltradas = contas.filter(c => getStatus(c) === aba)
+ const contasFiltradas = contas
+  .filter(c => getStatus(c) === aba)
+  .filter(conta => {
+
+    if (!conta.grupoRecorrencia) {
+      return true
+    }
+
+    const anteriores = contas.filter(c =>
+      c.grupoRecorrencia === conta.grupoRecorrencia &&
+      c.numeroParcela < conta.numeroParcela &&
+      !c.pago
+    )
+
+    return anteriores.length === 0
+  })
 
   const totalAvencer = contas.filter(c => getStatus(c) === 'avencer').reduce((s, c) => s + c.valor, 0)
   const totalVencido = contas.filter(c => getStatus(c) === 'vencido').reduce((s, c) => s + c.valor, 0)
@@ -199,7 +237,7 @@ const [form, setForm] = useState({
             <form className="dash-form" onSubmit={handleSubmit}>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Descrição *</label>
+                  <label>Nome da conta *</label>
                   <input
                     type="text"
                     placeholder="Ex: Aluguel, Luz, Netflix..."
@@ -208,6 +246,8 @@ const [form, setForm] = useState({
                     required
                   />
                 </div>
+
+                
                 
                 <div className="form-group form-group-sm">
                   <label>Valor (R$) *</label>
@@ -222,6 +262,80 @@ const [form, setForm] = useState({
                   />
                 </div>
               </div>
+
+              <div className="form-group">
+  <label>Descrição detalhada</label>
+
+  <textarea
+    placeholder="Ex: Conta referente ao aluguel do apartamento..."
+    value={form.descricaoDetalhada}
+    onChange={e =>
+      setForm(f => ({
+        ...f,
+        descricaoDetalhada: e.target.value
+      }))
+    }
+  />
+</div>
+
+
+<div className="switch-wrap">
+  <span className="switch-label">
+    Essa conta vai se repetir?
+  </span>
+
+  <label className="switch">
+    <input
+      type="checkbox"
+      checked={form.repetir}
+      onChange={e =>
+        setForm(f => ({
+          ...f,
+          repetir: e.target.checked
+        }))
+      }
+    />
+
+    <span className="slider"></span>
+  </label>
+</div>
+
+{form.repetir && (
+  <div className="form-group">
+    <label>Por quantos meses?</label>
+
+    <input
+      type="number"
+      min="1"
+      value={form.quantidadeMeses}
+      onChange={e =>
+        setForm(f => ({
+          ...f,
+          quantidadeMeses: e.target.value
+        }))
+      }
+    />
+  </div>
+)}
+
+{form.repetir && form.pago && (
+  <div className="form-group">
+    <label>Quantas parcelas já foram pagas?</label>
+
+    <input
+      type="number"
+      min="0"
+      max={form.quantidadeMeses}
+      value={form.parcelasPagas}
+      onChange={e =>
+        setForm(f => ({
+          ...f,
+          parcelasPagas: e.target.value
+        }))
+      }
+    />
+  </div>
+)}
               
               <div className="form-row">
                 <div className="form-group form-group-sm">
@@ -268,17 +382,7 @@ const [form, setForm] = useState({
           </div>
         )}
 
-        <div className="dash-abas">
-          <button className={`aba ${aba === 'avencer' ? 'aba-ativa avencer' : ''}`} onClick={() => setAba('avencer')}>
-            A vencer
-          </button>
-          <button className={`aba ${aba === 'vencido' ? 'aba-ativa vencido' : ''}`} onClick={() => setAba('vencido')}>
-            Vencidas
-          </button>
-          <button className={`aba ${aba === 'pago' ? 'aba-ativa pago' : ''}`} onClick={() => setAba('pago')}>
-            Pagas
-          </button>
-        </div>
+ 
 
         <div className="dash-lista">
           {loading && <p className="dash-info">Carregando...</p>}
