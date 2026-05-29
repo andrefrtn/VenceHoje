@@ -175,7 +175,7 @@ export default function Calendar() {
 
                            {isVencida(conta) && (
                             <span className="vencida-text">
-                              Em atraso
+                              Em atraso :(
                             </span>
                           )}
 

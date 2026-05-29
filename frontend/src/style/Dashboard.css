@@ -356,7 +356,8 @@
 .btn-del {
   background: transparent;
   color: #4a5568;
-  border: none;
+    border-color: rgba(139, 149, 167, 0.2);
+  border: 10;
   font-size: 1rem;
   cursor: pointer;
   padding: 4px 8px;
@@ -551,4 +552,49 @@
 .form-group textarea::placeholder {
   color: #4a5568;
 
+}
+
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #13161C;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 2rem;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-box h3 {
+  color: #fff;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.modal-sub {
+  color: #aaa;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.modal-erro {
+  color: #f87171;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 0.75rem;
 }

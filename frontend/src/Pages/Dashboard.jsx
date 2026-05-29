@@ -10,11 +10,19 @@ const CATEGORIAS = [
 ]
 
 function getStatus(conta) {
-  if (conta.pago) return 'pago'
+  const pago =
+    conta.pago === true ||
+    conta.pago === 'true' ||
+    conta.pago === 1
+
+  if (pago) return 'pago'
+
   const hoje = new Date()
   hoje.setHours(0, 0, 0, 0)
+
   const venc = new Date(conta.vencimento)
   venc.setHours(0, 0, 0, 0)
+
   if (venc < hoje) return 'vencido'
   return 'avencer'
 }
@@ -63,21 +71,20 @@ export default function Dashboard() {
   const [erro, setErro] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-const [form, setForm] = useState({
-  descricao: '',
-  descricaoDetalhada: '',
-  valor: '',
-  vencimento: '',
-  categoria: '',
+  const [modalParcelas, setModalParcelas] = useState(null)
 
-  pago: false,
+  const [form, setForm] = useState({
+    descricao: '',
+    descricaoDetalhada: '',
+    valor: '',
+    vencimento: '',
+    categoria: '',
+    pago: false,
+    repetir: false,
+    quantidadeMeses: 1,
+    parcelasPagas: 0
+  })
 
-  repetir: false,
-
-  quantidadeMeses: 1,
-
-  parcelasPagas: 0
-})
   const [juros, setJuros] = useState({})
 
   async function fetchContas() {
@@ -86,7 +93,15 @@ const [form, setForm] = useState({
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
-      setContas(Array.isArray(data) ? data : [])
+      setContas(
+        Array.isArray(data)
+          ? data.map(c => ({
+              ...c,
+              valor: Number(c.valor),
+              pago: c.pago === true || c.pago === 'true' || c.pago === 1
+            }))
+          : []
+      )
     } catch {
       setErro('Erro ao carregar contas')
     } finally {
@@ -114,12 +129,16 @@ const [form, setForm] = useState({
         setErro(d.message || 'Erro ao cadastrar')
       } else {
         setForm({
-        descricao: '',
-        valor: '',
-        vencimento: '',
-        categoria: '',
-        pago: false
-      })
+          descricao: '',
+          descricaoDetalhada: '',
+          valor: '',
+          vencimento: '',
+          categoria: '',
+          pago: false,
+          repetir: false,
+          quantidadeMeses: 1,
+          parcelasPagas: 0
+        })
         setShowForm(false)
         fetchContas()
       }
@@ -130,35 +149,63 @@ const [form, setForm] = useState({
     }
   }
 
-  async function togglePago(conta) {
+  async function executarToggle(conta, pago, parcelas) {
     try {
-
-      let parcelas = 1
-
-      if (conta.repetir && !conta.pago) {
-
-        const resposta = prompt(
-          "Quantas parcelas foram pagas?"
-        )
-
-        parcelas = parseInt(resposta) || 1
-      }
-      
       await fetch(`${API}/contas/${conta.id}/pagar`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({
-        pago: !conta.pago,
-        parcelas
-      })
+        body: JSON.stringify({ pago, parcelas })
       })
       fetchContas()
     } catch {
       setErro('Erro ao atualizar')
     }
+  }
+
+  function abrirModalParcelas(conta) {
+    if (conta.pago) {
+      if (!conta.grupoRecorrencia) {
+        executarToggle(conta, false, 1)
+        return
+      }
+      const pagas = contas.filter(
+        c => c.grupoRecorrencia === conta.grupoRecorrencia && c.pago
+      ).length
+      setModalParcelas({ conta, modo: 'desfazer', max: pagas, valor: '1', erro: '' })
+    } else {
+      if (!conta.grupoRecorrencia) {
+        executarToggle(conta, true, 1)
+        return
+      }
+      const pagas = contas.filter(
+        c => c.grupoRecorrencia === conta.grupoRecorrencia && c.pago
+      ).length
+      const restantes = Number(conta.quantidadeMeses || 1) - pagas
+      setModalParcelas({ conta, modo: 'pagar', max: restantes, valor: '1', erro: '' })
+    }
+  }
+
+  function confirmarModal() {
+    const { conta, modo, max, valor } = modalParcelas
+    const num = parseInt(valor, 10)
+
+    if (isNaN(num) || num < 1 || num > max) {
+      setModalParcelas(prev => ({
+        ...prev,
+        erro: `Digite um número entre 1 e ${max}`
+      }))
+      return
+    }
+
+    setModalParcelas(null)
+    executarToggle(conta, modo === 'pagar', num)
+  }
+
+  function togglePago(conta) {
+    abrirModalParcelas(conta)
   }
 
   async function deletar(id) {
@@ -174,34 +221,79 @@ const [form, setForm] = useState({
     }
   }
 
- const contasFiltradas = contas
-  .filter(c => getStatus(c) === aba)
-  .filter(conta => {
+  const contasFiltradas = contas
+    .filter(c => getStatus(c) === aba)
+    .filter(conta => {
+      if (!conta.grupoRecorrencia) return true
+      if (conta.pago) return true 
 
-    if (!conta.grupoRecorrencia) {
-      return true
-    }
+      const anteriores = contas.filter(c =>
+        c.grupoRecorrencia === conta.grupoRecorrencia &&
+        c.numeroParcela < conta.numeroParcela &&
+        !c.pago
+      )
+      return anteriores.length === 0
+    })
 
-    const anteriores = contas.filter(c =>
-      c.grupoRecorrencia === conta.grupoRecorrencia &&
-      c.numeroParcela < conta.numeroParcela &&
-      !c.pago
-    )
+  const totalAvencer = contas
+    .filter(c => getStatus(c) === 'avencer')
+    .reduce((s, c) => s + Number(c.valor), 0)
 
-    return anteriores.length === 0
-  })
+  const totalVencido = contas
+    .filter(c => getStatus(c) === 'vencido')
+    .reduce((s, c) => s + Number(c.valor), 0)
 
-  const totalAvencer = contas.filter(c => getStatus(c) === 'avencer').reduce((s, c) => s + c.valor, 0)
-  const totalVencido = contas.filter(c => getStatus(c) === 'vencido').reduce((s, c) => s + c.valor, 0)
-  const totalPago = contas.filter(c => getStatus(c) === 'pago').reduce((s, c) => s + c.valor, 0)
+  const totalPago = contas
+    .filter(c => getStatus(c) === 'pago')
+    .reduce((s, c) => s + Number(c.valor), 0)
 
   return (
     <>
+      {modalParcelas && (
+        <div className="modal-overlay" onClick={() => setModalParcelas(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3>
+              {modalParcelas.modo === 'pagar'
+                ? 'Quantas parcelas deseja pagar?'
+                : 'Quantas parcelas deseja desfazer?'}
+            </h3>
+            <p className="modal-sub">
+              <strong>{modalParcelas.conta.descricao}</strong>
+              {' — '}máximo {modalParcelas.max} parcela(s)
+            </p>
+            <input
+              type="number"
+              min="1"
+              max={modalParcelas.max}
+              value={modalParcelas.valor}
+              placeholder={`1 a ${modalParcelas.max}`}
+              onChange={e =>
+                setModalParcelas(prev => ({ ...prev, valor: e.target.value, erro: '' }))
+              }
+              autoFocus
+              onKeyDown={e => e.key === 'Enter' && confirmarModal()}
+            />
+            {modalParcelas.erro && (
+              <p className="modal-erro">{modalParcelas.erro}</p>
+            )}
+            <div className="modal-btns">
+              <button className="btn-submit" onClick={confirmarModal}>
+                Confirmar
+              </button>
+              <button className="btn-del" onClick={() => setModalParcelas(null)}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="dash-page">
         <div className="dash-header">
           <div>
             <h1 className="dash-greeting">
-              Como estão seus gastos, <span className="dash-name">{user?.name?.split(' ')[0] || 'Usuário'}</span>?
+              Como estão seus gastos,{' '}
+              <span className="dash-name">{user?.name?.split(' ')[0] || 'Usuário'}</span>?
             </h1>
             <p className="dash-sub">Gerencie suas contas e nunca perca um vencimento.</p>
           </div>
@@ -231,8 +323,6 @@ const [form, setForm] = useState({
         {showForm && (
           <div className="dash-form-wrap">
             <h2 className="form-title">Cadastrar nova conta</h2>
-
-            
             {erro && <p className="dash-erro">{erro}</p>}
             <form className="dash-form" onSubmit={handleSubmit}>
               <div className="form-row">
@@ -246,9 +336,6 @@ const [form, setForm] = useState({
                     required
                   />
                 </div>
-
-                
-                
                 <div className="form-group form-group-sm">
                   <label>Valor (R$) *</label>
                   <input
@@ -264,79 +351,51 @@ const [form, setForm] = useState({
               </div>
 
               <div className="form-group">
-  <label>Descrição detalhada</label>
+                <label>Descrição detalhada</label>
+                <textarea
+                  placeholder="Ex: Conta referente ao aluguel do apartamento..."
+                  value={form.descricaoDetalhada}
+                  onChange={e => setForm(f => ({ ...f, descricaoDetalhada: e.target.value }))}
+                />
+              </div>
 
-  <textarea
-    placeholder="Ex: Conta referente ao aluguel do apartamento..."
-    value={form.descricaoDetalhada}
-    onChange={e =>
-      setForm(f => ({
-        ...f,
-        descricaoDetalhada: e.target.value
-      }))
-    }
-  />
-</div>
+              <div className="switch-wrap">
+                <span className="switch-label">Essa conta vai se repetir?</span>
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={form.repetir}
+                    onChange={e => setForm(f => ({ ...f, repetir: e.target.checked }))}
+                  />
+                  <span className="slider"></span>
+                </label>
+              </div>
 
+              {form.repetir && (
+                <div className="form-group">
+                  <label>Por quantos meses?</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={form.quantidadeMeses}
+                    onChange={e => setForm(f => ({ ...f, quantidadeMeses: e.target.value }))}
+                  />
+                </div>
+              )}
 
-<div className="switch-wrap">
-  <span className="switch-label">
-    Essa conta vai se repetir?
-  </span>
+              {form.repetir && form.pago && (
+                <div className="form-group">
+                  <label>Quantas parcelas já foram pagas?</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max={form.quantidadeMeses}
+                    value={form.parcelasPagas}
+                    onChange={e => setForm(f => ({ ...f, parcelasPagas: e.target.value }))}
+                  />
+                </div>
+              )}
 
-  <label className="switch">
-    <input
-      type="checkbox"
-      checked={form.repetir}
-      onChange={e =>
-        setForm(f => ({
-          ...f,
-          repetir: e.target.checked
-        }))
-      }
-    />
-
-    <span className="slider"></span>
-  </label>
-</div>
-
-{form.repetir && (
-  <div className="form-group">
-    <label>Por quantos meses?</label>
-
-    <input
-      type="number"
-      min="1"
-      value={form.quantidadeMeses}
-      onChange={e =>
-        setForm(f => ({
-          ...f,
-          quantidadeMeses: e.target.value
-        }))
-      }
-    />
-  </div>
-)}
-
-{form.repetir && form.pago && (
-  <div className="form-group">
-    <label>Quantas parcelas já foram pagas?</label>
-
-    <input
-      type="number"
-      min="0"
-      max={form.quantidadeMeses}
-      value={form.parcelasPagas}
-      onChange={e =>
-        setForm(f => ({
-          ...f,
-          parcelasPagas: e.target.value
-        }))
-      }
-    />
-  </div>
-)}
-              
               <div className="form-row">
                 <div className="form-group form-group-sm">
                   <label>Vencimento *</label>
@@ -358,31 +417,25 @@ const [form, setForm] = useState({
                   </select>
                 </div>
               </div>
-              <div className="switch-wrap">
-  <span className="switch-label">Conta já foi paga?</span>
 
-  <label className="switch">
-    <input
-      type="checkbox"
-      checked={form.pago}
-      onChange={e =>
-        setForm(f => ({
-          ...f,
-          pago: e.target.checked
-        }))
-      }
-    />
-    <span className="slider"></span>
-  </label>
-</div>
+              <div className="switch-wrap">
+                <span className="switch-label">Conta já foi paga?</span>
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={form.pago}
+                    onChange={e => setForm(f => ({ ...f, pago: e.target.checked }))}
+                  />
+                  <span className="slider"></span>
+                </label>
+              </div>
+
               <button type="submit" className="btn-submit" disabled={submitting}>
                 {submitting ? 'Salvando...' : 'Salvar conta'}
               </button>
             </form>
           </div>
         )}
-
- 
 
         <div className="dash-lista">
           {loading && <p className="dash-info">Carregando...</p>}
@@ -399,106 +452,108 @@ const [form, setForm] = useState({
               <p>Nenhuma conta {aba === 'avencer' ? 'a vencer' : aba === 'vencido' ? 'vencida' : 'paga'} encontrada.</p>
             </div>
           )}
+
           {!loading && contasFiltradas.map(conta => {
             const j = juros[conta.id] || { taxa: '', tipo: 'simples', aberto: false }
             const calc = j.aberto && j.taxa ? calcJuros(conta.valor, conta.vencimento, j.taxa, j.tipo) : null
 
             return (
-            <div key={conta.id} className={`conta-card status-${getStatus(conta)}`}>
-              <div className="conta-info">
-                <div className="conta-top">
-                  <span className="conta-desc">{conta.descricao}</span>
-                  {conta.categoria && <span className="conta-cat">{conta.categoria}</span>}
-                </div>
-                <div className="conta-bottom">
-                  <span className="conta-data">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="13" height="13" style={{marginRight: '5px', verticalAlign: 'middle', flexShrink: 0}}><path fill="rgb(11, 192, 239)" d="M128 0C110.3 0 96 14.3 96 32l0 32-32 0C28.7 64 0 92.7 0 128l0 48 448 0 0-48c0-35.3-28.7-64-64-64l-32 0 0-32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 32-128 0 0-32c0-17.7-14.3-32-32-32zM0 224L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-192-448 0z"/></svg>
-                    {formatDate(conta.vencimento)}
-                  </span>
-                  {conta.pago && conta.pagoEm && (
-                    <span className="conta-pagouEm">Pago em {formatDate(conta.pagoEm)}</span>
-                  )}
-                  {getStatus(conta) === 'vencido' && (
-                    <button
-                      className="btn-juros-toggle"
-                      onClick={() => setJuros(prev => ({
-                        ...prev,
-                        [conta.id]: { ...j, aberto: !j.aberto }
-                      }))}
-                    >
-                      % Calcular juros
-                    </button>
-                  )}
-                </div>
-
-                {getStatus(conta) === 'vencido' && j.aberto && (
-                  <div className="juros-painel">
-                    <div className="juros-inputs">
-                      <div className="juros-field">
-                        <label>Taxa mensal (%)</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="Ex: 2"
-                          value={j.taxa}
-                          onChange={e => setJuros(prev => ({
-                            ...prev,
-                            [conta.id]: { ...j, taxa: e.target.value }
-                          }))}
-                        />
-                      </div>
-                      <div className="juros-field">
-                        <label>Tipo</label>
-                        <select
-                          value={j.tipo}
-                          onChange={e => setJuros(prev => ({
-                            ...prev,
-                            [conta.id]: { ...j, tipo: e.target.value }
-                          }))}
-                        >
-                          <option value="simples">Simples</option>
-                          <option value="composto">Composto</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {calc && (
-                      <div className="juros-resultado">
-                        <div className="juros-linha">
-                          <span>Dias em atraso</span>
-                          <span className="juros-val">{calc.diasAtraso} dias</span>
-                        </div>
-                        <div className="juros-linha">
-                          <span>Valor original</span>
-                          <span className="juros-val">{formatMoney(conta.valor)}</span>
-                        </div>
-                        <div className="juros-linha">
-                          <span>Juros acumulados</span>
-                          <span className="juros-val juros-red">{formatMoney(calc.jurosValor)}</span>
-                        </div>
-                        <div className="juros-linha juros-total-linha">
-                          <span>Total a pagar</span>
-                          <span className="juros-val juros-total">{formatMoney(calc.total)}</span>
-                        </div>
-                      </div>
+              <div key={conta.id} className={`conta-card status-${getStatus(conta)}`}>
+                <div className="conta-info">
+                  <div className="conta-top">
+                    <span className="conta-desc">{conta.descricao}</span>
+                    {conta.categoria && <span className="conta-cat">{conta.categoria}</span>}
+                  </div>
+                  <div className="conta-bottom">
+                    <span className="conta-data">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="13" height="13" style={{ marginRight: '5px', verticalAlign: 'middle', flexShrink: 0 }}>
+                        <path fill="rgb(11, 192, 239)" d="M128 0C110.3 0 96 14.3 96 32l0 32-32 0C28.7 64 0 92.7 0 128l0 48 448 0 0-48c0-35.3-28.7-64-64-64l-32 0 0-32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 32-128 0 0-32c0-17.7-14.3-32-32-32zM0 224L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-192-448 0z" />
+                      </svg>
+                      {formatDate(conta.vencimento)}
+                    </span>
+                    {conta.pago && conta.pagoEm && (
+                      <span className="conta-pagouEm">Pago em {formatDate(conta.pagoEm)}</span>
+                    )}
+                    {getStatus(conta) === 'vencido' && (
+                      <button
+                        className="btn-juros-toggle"
+                        onClick={() => setJuros(prev => ({
+                          ...prev,
+                          [conta.id]: { ...j, aberto: !j.aberto }
+                        }))}
+                      >
+                        % Calcular juros
+                      </button>
                     )}
                   </div>
-                )}
-              </div>
 
-              <div className="conta-acoes">
-                <span className="conta-valor">{formatMoney(conta.valor)}</span>
-                <button
-                  className={`btn-pagar ${conta.pago ? 'btn-despagar' : ''}`}
-                  onClick={() => togglePago(conta)}
-                  title={conta.pago ? 'Marcar como não pago' : 'Marcar como pago'}
-                >
-                  {conta.pago ? '↩ Desfazer' : '✓ Pagar'}
-                </button>
-                <button className="btn-del" onClick={() => deletar(conta.id)} title="Remover">✕</button>
+                  {getStatus(conta) === 'vencido' && j.aberto && (
+                    <div className="juros-painel">
+                      <div className="juros-inputs">
+                        <div className="juros-field">
+                          <label>Taxa mensal (%)</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="Ex: 2"
+                            value={j.taxa}
+                            onChange={e => setJuros(prev => ({
+                              ...prev,
+                              [conta.id]: { ...j, taxa: e.target.value }
+                            }))}
+                          />
+                        </div>
+                        <div className="juros-field">
+                          <label>Tipo</label>
+                          <select
+                            value={j.tipo}
+                            onChange={e => setJuros(prev => ({
+                              ...prev,
+                              [conta.id]: { ...j, tipo: e.target.value }
+                            }))}
+                          >
+                            <option value="simples">Simples</option>
+                            <option value="composto">Composto</option>
+                          </select>
+                        </div>
+                      </div>
+                      {calc && (
+                        <div className="juros-resultado">
+                          <div className="juros-linha">
+                            <span>Dias em atraso</span>
+                            <span className="juros-val">{calc.diasAtraso} dias</span>
+                          </div>
+                          <div className="juros-linha">
+                            <span>Valor original</span>
+                            <span className="juros-val">{formatMoney(conta.valor)}</span>
+                          </div>
+                          <div className="juros-linha">
+                            <span>Juros acumulados</span>
+                            <span className="juros-val juros-red">{formatMoney(calc.jurosValor)}</span>
+                          </div>
+                          <div className="juros-linha juros-total-linha">
+                            <span>Total a pagar</span>
+                            <span className="juros-val juros-total">{formatMoney(calc.total)}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="conta-acoes">
+                  <span className="conta-valor">{formatMoney(conta.valor)}</span>
+                  <button
+                    className={`btn-pagar ${conta.pago ? 'btn-despagar' : ''}`}
+                    onClick={() => togglePago(conta)}
+                    title={conta.pago ? 'Marcar como não pago' : 'Marcar como pago'}
+                  >
+                    {conta.pago ? '↩ Desfazer' : '✓ Pagar'}
+                  </button>
+                  <button className="btn-del" onClick={() => deletar(conta.id)} title="Remover">✕</button>
+                </div>
               </div>
-            </div>
             )
           })}
         </div>
