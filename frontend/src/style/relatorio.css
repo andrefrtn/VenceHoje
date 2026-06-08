@@ -264,11 +264,12 @@
 }
 
 .relatorio-split-recorrentes {
-  background: #f87171;
+  background: #051f75;
+  
 }
 
 .relatorio-split-unicos {
-  background: #fbbf24;
+  background: #2567bd;
 }
 
 .relatorio-ranking-list {
@@ -292,7 +293,7 @@
 }
 
 .relatorio-rank-top {
-  color: #fbbf24;
+  color: #ffffff;
 }
 
 .relatorio-ranking-content {
@@ -374,12 +375,12 @@
 
 .relatorio-projection-row span:last-child,
 .relatorio-projection-total span:last-child {
-  color: #f87171;
+  color: #7cb9ff;
   font-weight: 700;
 }
 
 .relatorio-projection-total {
-  color: #fff;
+  color: #ffffff;
   display: flex;
   font-size: 1rem;
   font-weight: 700;

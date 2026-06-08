@@ -88,8 +88,8 @@ function ScoreRing({ score }) {
   const r = 52
   const circ = 2 * Math.PI * r
   const offset = circ - (score / 100) * circ
-  const color = score >= 80 ? "#4ade80" : score >= 60 ? "#38bdf8" : score >= 40 ? "#fbbf24" : "#f87171"
-  const label = score >= 80 ? "Excelente" : score >= 60 ? "Boa" : score >= 40 ? "Atencao" : "Critica"
+const color = score >= 80 ? "#049445" : score >= 60 ? "#14698d" : score >= 40 ? "#fbbf24" : "#941010" 
+const label = score >= 80 ? "Excelente" : score >= 60 ? "Boa" : score >= 40 ? "Atencao" : "Critica"
 
   return (
     <div className="relatorio-score">
@@ -144,7 +144,7 @@ function Section({ title, children }) {
 }
 
 const CAT_COLORS = [
-  "#0f172a", 
+  "#16264b", 
   "#1e3a8a",
   "#1d4ed8",
   "#2563eb",
@@ -468,8 +468,8 @@ export default function Relatorio() {
         <Section title="Recorrentes vs Eventuais">
           <div className="relatorio-stack">
             {[
-              { l: "Gastos Recorrentes", v: fmt(stats.recorrentes), c: "#f87171" },
-              { l: "Gastos Eventuais", v: fmt(stats.unicos), c: "#fbbf24" },
+              { l: "Gastos Recorrentes", v: fmt(stats.recorrentes), c: "#cfdaff" },
+              { l: "Gastos Eventuais", v: fmt(stats.unicos), c: "#8b9aca" },
             ].map((r) => (
               <div className="relatorio-row relatorio-row-large" key={r.l}>
                 <span className="relatorio-row-label">{r.l}</span>
@@ -570,7 +570,7 @@ export default function Relatorio() {
         ) : (
           <div className="relatorio-insights">
             {stats.insights.map((ins, i) => {
-              const colors = { ok: "#4ade80", alerta: "#fbbf24", info: "#38bdf8" }
+              const colors = { ok: "#09993e", alerta: "#bd8905", info: "#0579aa" }
               const icons = { ok: "OK", alerta: "!", info: "i" }
               const c = colors[ins.tipo]
 
