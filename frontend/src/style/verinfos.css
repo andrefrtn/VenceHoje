@@ -128,3 +128,19 @@
     font-size: 1.5rem;
   }
 }
+
+::-webkit-scrollbar {
+  width: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.15);
+  border-radius: 999px;
+
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
