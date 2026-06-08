@@ -75,7 +75,7 @@ export default function Header() {
           Assinaturas
         </div>
 
-        <div onClick={() => handleNavigation("/relatorios")} className='pages' style={{ cursor: 'pointer' }}>
+        <div onClick={() => handleNavigation("/relatorio")} className='pages' style={{ cursor: 'pointer' }}>
           <svg className='rel' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="30" height="30">
             <path fill="currentColor" d="M32 32c17.7 0 32 14.3 32 32l0 336c0 8.8 7.2 16 16 16l400 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L80 480c-44.2 0-80-35.8-80-80L0 64C0 46.3 14.3 32 32 32zM144 224c17.7 0 32 14.3 32 32l0 64c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32zm144-64l0 160c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-160c0-17.7 14.3-32 32-32s32 14.3 32 32zm80 32c17.7 0 32 14.3 32 32l0 96c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-96c0-17.7 14.3-32 32-32zM512 96l0 224c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-224c0-17.7 14.3-32 32-32s32 14.3 32 32z" />
           </svg>

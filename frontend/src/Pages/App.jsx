@@ -11,6 +11,7 @@ import Choose from './choose'
 import Myinfos from './myinfos'
 import Verinfos from './verinfos'
 import Contas from './contas'
+import Relatorio from './relatorio'
 
 export default function App() {
   return (
@@ -66,6 +67,16 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Contas />
+              </ProtectedRoute>
+            }
+          />
+
+
+              <Route
+            path="/relatorio"
+            element={
+              <ProtectedRoute>
+                <Relatorio />
               </ProtectedRoute>
             }
           />
