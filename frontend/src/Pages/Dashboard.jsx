@@ -85,27 +85,31 @@ export default function Dashboard() {
 
   const [juros, setJuros] = useState({})
 
-  async function fetchContas() {
-    try {
-      const res = await fetch(`${API}/contas`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      const data = await res.json()
-      setContas(
-        Array.isArray(data)
-          ? data.map(c => ({
-              ...c,
-              valor: Number(c.valor),
-              pago: c.pago === true || c.pago === 'true' || c.pago === 1
-            }))
-          : []
-      )
-    } catch {
-      setErro('Erro ao carregar contas')
-    } finally {
-      setLoading(false)
-    }
+async function fetchContas() {
+  try {
+    const res = await fetch(`${API}/contas`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    const data = await res.json()
+
+    console.log("CONTAS RECEBIDAS:", data)
+
+    setContas(
+      Array.isArray(data)
+        ? data.map(c => ({
+            ...c,
+            valor: Number(c.valor),
+            pago: c.pago === true || c.pago === 'true' || c.pago === 1
+          }))
+        : []
+    )
+  } catch {
+    setErro('Erro ao carregar contas')
+  } finally {
+    setLoading(false)
   }
+}
 
   useEffect(() => { fetchContas() }, [])
 
@@ -219,28 +223,10 @@ export default function Dashboard() {
     }
   }
 
-const contasFiltradas = contas
-  .filter(c => getStatus(c) === aba)
-  .filter(conta => {
-    if (!conta.grupoRecorrencia) return true
+const contasFiltradas = contas.filter(
+  c => getStatus(c) === aba
+)
 
-    if (conta.pago) return true
-
-    if (conta.numeroParcela === undefined || conta.numeroParcela === null) return true
-
-    const parcelaAtual = Number(conta.numeroParcela)
-
-    const anterioresNaoPagos = contas.filter(c => {
-      if (c.grupoRecorrencia !== conta.grupoRecorrencia) return false
-      if (c.pago) return false
-      if (c.numeroParcela === undefined || c.numeroParcela === null) return false
-
-      const parcela = Number(c.numeroParcela)
-      return parcela < parcelaAtual
-    })
-
-    return anterioresNaoPagos.length === 0
-  })
 
 const totalAvencer = contas
   .filter(c => getStatus(c) === 'avencer')
@@ -254,6 +240,13 @@ const totalPago = contas
   .filter(c => getStatus(c) === 'pago')
   .reduce((s, c) => s + Number(c.valor), 0)
 
+
+  console.log("ABA:", aba)
+console.log("CONTAS FILTRADAS:", contasFiltradas)
+console.log(
+  "A VENCER:",
+  contas.filter(c => getStatus(c) === "avencer")
+)
 
   return (
     <>

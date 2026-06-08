@@ -175,7 +175,9 @@ app.post("/contas", authMiddleware, async (req, res) => {
       const dataVencimento = new Date(vencimento)
       dataVencimento.setMonth(dataVencimento.getMonth() + i)
 
-      const estaPaga = pago && i < parcelasPagas
+      const parcelasJaPagas = parseInt(parcelasPagas) || 0
+
+      const estaPaga = pago && i < parcelasJaPagas
 
       const conta = await prisma.conta.create({
         data: {
@@ -215,51 +217,74 @@ app.patch("/contas/:id/pagar", authMiddleware, async (req, res) => {
       where: { id, userId: req.userId }
     })
 
-    if (!conta) return res.status(404).json({ message: "Conta não encontrada" })
+    if (!conta) {
+      return res.status(404).json({ message: "Conta não encontrada" })
+    }
 
     if (conta.grupoRecorrencia) {
+
       if (pago) {
         const contasGrupo = await prisma.conta.findMany({
-          where: { 
-            grupoRecorrencia: conta.grupoRecorrencia, 
+          where: {
+            grupoRecorrencia: conta.grupoRecorrencia,
             pago: false,
-            numeroParcela: { gte: conta.numeroParcela } 
+            numeroParcela: {
+              gte: conta.numeroParcela
+            }
           },
-          orderBy: { numeroParcela: "asc" }
+          orderBy: {
+            numeroParcela: "asc"
+          }
         })
-        
-        const ids = contasGrupo.slice(0, parcelas).map(c => c.id)
-        
-        await prisma.conta.updateMany({
-          where: { id: { in: ids } },
-          data: { pago: true, pagoEm: new Date() }
-        })
-        return res.json({ message: "Parcelas pagas" })
 
-      } else {
-        const contasGrupo = await prisma.conta.findMany({
-          where: { 
-            grupoRecorrencia: conta.grupoRecorrencia, 
-            pago: true,
-            numeroParcela: { lte: conta.numeroParcela }  
-          },
-          orderBy: { numeroParcela: "desc" }
-        })
-        
-        const ids = contasGrupo.slice(0, parcelas).map(c => c.id)
-        
+        const ids = contasGrupo
+          .slice(0, parcelas)
+          .map(c => c.id)
+
         await prisma.conta.updateMany({
           where: { id: { in: ids } },
-          data: { pago: false, pagoEm: null }
+          data: {
+            pago: true,
+            pagoEm: new Date()
+          }
         })
-        return res.json({ message: "Parcelas desfeitas" })
+
+        return res.json({ message: "Parcelas pagas" })
       }
+
+      const contasGrupo = await prisma.conta.findMany({
+        where: {
+          grupoRecorrencia: conta.grupoRecorrencia,
+          pago: true
+        },
+        orderBy: {
+          numeroParcela: "desc"
+        }
+      })
+
+      const ids = contasGrupo
+        .slice(0, parcelas)
+        .map(c => c.id)
+
+      await prisma.conta.updateMany({
+        where: { id: { in: ids } },
+        data: {
+          pago: false,
+          pagoEm: null
+        }
+      })
+
+      return res.json({ message: "Parcelas desfeitas" })
     }
 
     const updated = await prisma.conta.update({
       where: { id },
-      data: { pago: !!pago, pagoEm: pago ? new Date() : null }
+      data: {
+        pago: !!pago,
+        pagoEm: pago ? new Date() : null
+      }
     })
+
     return res.json(updated)
 
   } catch (err) {
