@@ -144,16 +144,16 @@ function Section({ title, children }) {
 }
 
 const CAT_COLORS = [
-  "#38bdf8",
-  "#4ade80",
-  "#f87171",
-  "#fbbf24",
-  "#a78bfa",
-  "#fb923c",
-  "#34d399",
-  "#f472b6",
+  "#0f172a", 
+  "#1e3a8a",
+  "#1d4ed8",
+  "#2563eb",
+  "#3b82f6",
   "#60a5fa",
-  "#e879f9",
+  "#93c5fd",
+  "#bfdbfe",
+  "#dbeafe",
+  "#eff6ff"
 ]
 
 export default function Relatorio() {
