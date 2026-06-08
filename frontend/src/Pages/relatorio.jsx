@@ -491,12 +491,12 @@ export default function Relatorio() {
             ].map((r) => (
               <div className="relatorio-row relatorio-row-large" key={r.l}>
                 <span className="relatorio-row-label">{r.l}</span>
-                <span className="relatorio-row-value" style={{ "--row-color": stats.vencidas.length === 0 ? "#4ade80" : r.c }}>
+                <span className="relatorio-row-value" style={{ "--row-color": stats.vencidas.length === 0 ? "#8b9aca" : r.c }}>
                   {r.v}
                 </span>
               </div>
             ))}
-            {stats.vencidas.length === 0 && <span className="relatorio-ok-text">Nenhuma conta vencida</span>}
+            {stats.vencidas.length === 0 && <span className="relatorio-ok-text">Nenhuma conta vencida :) </span>}
           </div>
         </Section>
       </div>
