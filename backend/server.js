@@ -321,15 +321,24 @@ app.delete("/contas/:id", authMiddleware, async (req, res) => {
 
 app.get("/myinfos", authMiddleware, async (req, res) => {
   try {
+    console.log("User ID:", req.userId);
+
     const infos = await prisma.userInfo.findUnique({
-      where: { userId: req.userId }
-    })
-    return res.json(infos)
+      where: {
+        userId: req.userId
+      }
+    });
+
+    console.log("Infos:", infos);
+
+    return res.json(infos);
   } catch (err) {
-    console.log(err)
-    return res.status(500).json({ message: "Erro ao buscar informações" })
+    console.log(err);
+    return res.status(500).json({
+      message: "Erro ao buscar informações"
+    });
   }
-})
+});
 
 app.post("/myinfos", authMiddleware, async (req, res) => {
   try {
