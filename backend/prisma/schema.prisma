@@ -37,7 +37,8 @@ model Conta {
 
   descricaoDetalhada String?
 
-  valor       Float
+  valor               Float
+  valorOriginal       Float
   vencimento  DateTime
 
   categoria   String?

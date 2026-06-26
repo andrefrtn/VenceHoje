@@ -149,17 +149,17 @@ app.get("/contas", authMiddleware, async (req, res) => {
 
 app.post("/contas", authMiddleware, async (req, res) => {
   try {
-    const {
-      descricao,
-      descricaoDetalhada,
-      valor,
-      vencimento,
-      categoria,
-      pago,
-      repetir,
-      quantidadeMeses,
-      parcelasPagas
-    } = req.body
+const {
+  descricao,
+  descricaoDetalhada,
+  valor,
+  vencimento,
+  categoria,
+  pago,
+  repetir,
+  quantidadeMeses,
+  parcelasPagas
+} = req.body
 
     if (!descricao || !valor || !vencimento) {
       return res.status(400).json({
@@ -179,22 +179,23 @@ app.post("/contas", authMiddleware, async (req, res) => {
 
       const estaPaga = pago && i < parcelasJaPagas
 
-      const conta = await prisma.conta.create({
-        data: {
-          userId: req.userId,
-          descricao,
-          descricaoDetalhada,
-          valor: parseFloat(valor),
-          vencimento: dataVencimento,
-          categoria: categoria || null,
-          pago: estaPaga,
-          pagoEm: estaPaga ? new Date() : null,
-          repetir: repetir || false,
-          quantidadeMeses: repetir ? parseInt(quantidadeMeses) : 1,
-          grupoRecorrencia,
-          numeroParcela: i + 1
-        }
-      })
+   const conta = await prisma.conta.create({
+    data: {
+      userId: req.userId,
+      descricao,
+      descricaoDetalhada,
+      valor: parseFloat(valor),
+      valorOriginal: parseFloat(valor),
+      vencimento: dataVencimento,
+      categoria: categoria || null,
+      pago: estaPaga,
+      pagoEm: estaPaga ? new Date() : null,
+      repetir: repetir || false,
+      quantidadeMeses: repetir ? parseInt(quantidadeMeses) : 1,
+      grupoRecorrencia,
+      numeroParcela: i + 1
+    }
+  })
 
       contasCriadas.push(conta)
     }
@@ -210,7 +211,7 @@ app.post("/contas", authMiddleware, async (req, res) => {
 app.patch("/contas/:id/pagar", authMiddleware, async (req, res) => {
   try {
     const id = parseInt(req.params.id)
-    const { pago, parcelas: parcelasReq } = req.body
+    const { pago, parcelas: parcelasReq, valor } = req.body
     const parcelas = parseInt(parcelasReq) || 1
 
     const conta = await prisma.conta.findFirst({
@@ -245,7 +246,10 @@ app.patch("/contas/:id/pagar", authMiddleware, async (req, res) => {
           where: { id: { in: ids } },
           data: {
             pago: true,
-            pagoEm: new Date()
+            pagoEm: new Date(),
+            ...(valor !== undefined && {
+              valor: parseFloat(valor)
+            })
           }
         })
 
@@ -277,13 +281,16 @@ app.patch("/contas/:id/pagar", authMiddleware, async (req, res) => {
       return res.json({ message: "Parcelas desfeitas" })
     }
 
-    const updated = await prisma.conta.update({
-      where: { id },
-      data: {
-        pago: !!pago,
-        pagoEm: pago ? new Date() : null
-      }
-    })
+const updated = await prisma.conta.update({
+  where: { id },
+  data: {
+    pago: !!pago,
+    pagoEm: pago ? new Date() : null,
+    ...(valor !== undefined && {
+  valor: parseFloat(valor)
+})
+  }
+})
 
     return res.json(updated)
 
