@@ -474,3 +474,121 @@ input:focus{
   border: 2px solid transparent;
   background-clip: content-box;
 }
+
+@media (max-width: 1100px) {
+  .choosePage {
+    padding: 48px 60px;
+  }
+
+  .topSection {
+    gap: 50px;
+  }
+
+  .leftSide h1 {
+    font-size: 60px;
+    letter-spacing: -3px;
+  }
+
+  .benefits {
+    grid-template-columns: repeat(2, 1fr);
+    margin-top: 60px;
+  }
+
+  .formCard {
+    width: 360px;
+  }
+}
+
+@media (max-width: 860px) {
+  .choosePage {
+    padding: 40px 32px;
+  }
+
+  .topSection {
+    flex-direction: column;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  .leftSide h1 {
+    font-size: 52px;
+    letter-spacing: -2px;
+  }
+
+  .description {
+    font-size: 17px;
+    max-width: 100%;
+  }
+
+  .formCard {
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+  }
+
+  .rightSide {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .benefits {
+    grid-template-columns: 1fr;
+    margin-top: 40px;
+    gap: 16px;
+  }
+
+  .chartCard {
+    margin-top: 32px;
+  }
+}
+
+@media (max-width: 540px) {
+  .choosePage {
+    padding: 28px 20px 60px;
+  }
+
+  .leftSide h1 {
+    font-size: 40px;
+    letter-spacing: -1.5px;
+  }
+
+  .description {
+    font-size: 15px;
+    margin-top: 18px;
+  }
+
+  .formCard {
+    padding: 28px 22px;
+    border-radius: 24px;
+  }
+
+  .formTop h3 {
+    font-size: 30px;
+  }
+
+  .chartTop h2 {
+    font-size: 40px;
+    letter-spacing: -2px;
+  }
+
+  .benefitCard {
+    padding: 24px;
+    border-radius: 22px;
+  }
+
+  .benefitCard h3 {
+    font-size: 21px;
+  }
+
+  input,
+  .loginBtn,
+  .registerBtn {
+    height: 52px;
+    border-radius: 14px;
+    font-size: 15px;
+  }
+
+  .graph {
+    height: 170px;
+  }
+}

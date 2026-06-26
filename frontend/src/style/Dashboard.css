@@ -375,6 +375,102 @@
   .form-group-sm { flex: 1; min-width: 100%; }
 }
 
+@media (max-width: 480px) {
+  .dash-page {
+    padding: 20px 14px 60px;
+  }
+
+  .dash-header {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .btn-nova {
+    width: 100%;
+    text-align: center;
+  }
+
+  .dash-greeting {
+    font-size: 1.25rem;
+  }
+
+  .dash-cards {
+    gap: 10px;
+  }
+
+  .dash-card {
+    padding: 18px 16px;
+    border-radius: 16px;
+  }
+
+  .card-valor {
+    font-size: 1.3rem;
+  }
+
+  .dash-form-wrap {
+    padding: 22px 16px;
+    border-radius: 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .form-group {
+    min-width: 100%;
+  }
+
+  .dash-abas {
+    gap: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .aba {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .conta-card {
+    padding: 14px;
+    border-radius: 14px;
+    gap: 10px;
+  }
+
+  .conta-desc {
+    font-size: 0.92rem;
+  }
+
+  .conta-valor {
+    font-size: 0.95rem;
+    min-width: auto;
+  }
+
+  .btn-pagar {
+    padding: 6px 10px;
+    font-size: 0.78rem;
+  }
+
+  .juros-inputs {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .switch-wrap {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .modal-box {
+    min-width: 280px;
+    padding: 1.5rem;
+    margin: 0 16px;
+  }
+}
+
 .btn-juros-toggle {
   background: rgba(248, 113, 113, 0.1);
   color: #f87171;

@@ -143,6 +143,53 @@ color: white;
   .detalhes-body {
     grid-template-columns: 1fr;
   }
+
+  .contas-lista {
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: 540px) {
+  .contas-layout {
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .contas-lista {
+    padding: 12px;
+    border-radius: 16px;
+    max-height: 45vh;
+  }
+
+  .conta-card {
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+
+  .conta-detalhes {
+    padding: 16px;
+    border-radius: 16px;
+    min-height: auto;
+  }
+
+  .detalhes-header {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .valor-destaque {
+    font-size: 1.1rem;
+  }
+
+  .conta-title {
+    font-size: 0.88rem;
+  }
+
+  .conta-valor {
+    font-size: 0.8rem;
+  }
 }
 
 ::-webkit-scrollbar {

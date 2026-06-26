@@ -428,6 +428,75 @@
   }
 }
 
+@media (max-width: 600px) {
+  .relatorio-page {
+    max-width: 100%;
+  }
+
+  .relatorio-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .relatorio-card {
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+
+  .relatorio-card-value {
+    font-size: 1.2rem;
+  }
+
+  .relatorio-section {
+    padding: 20px 16px;
+    border-radius: 16px;
+    gap: 14px;
+  }
+
+  .relatorio-bar-chart {
+    height: 60px;
+  }
+
+  .relatorio-category-layout {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .relatorio-pie-chart {
+    align-self: center;
+  }
+
+  .relatorio-ranking-name {
+    max-width: 140px;
+  }
+
+  .relatorio-projection-row,
+  .relatorio-projection-total {
+    font-size: 0.82rem;
+  }
+
+  .relatorio-insight {
+    padding: 10px 12px;
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .relatorio-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .relatorio-card-value {
+    font-size: 1.1rem;
+  }
+
+  .relatorio-split-bar {
+    height: 6px;
+  }
+}
+
 
 ::-webkit-scrollbar {
   width: 9px;

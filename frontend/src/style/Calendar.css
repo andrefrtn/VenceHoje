@@ -229,11 +229,13 @@
 @media (max-width: 700px) {
   .calendar-page {
     padding: 28px 16px 60px;
+    border-radius: 20px;
   }
 
   .calendar-day {
     min-height: 65px;
     padding: 8px;
+    border-radius: 12px;
   }
 
   .calendar-title {
@@ -251,6 +253,71 @@
 
   .calendar-tooltip {
     width: 190px;
+  }
+
+  .calendar-weekdays {
+    gap: 6px;
+  }
+
+  .calendar-grid {
+    gap: 6px;
+  }
+
+  .calendar-legenda {
+    gap: 8px;
+  }
+
+  .legenda-item {
+    font-size: 0.72rem;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .calendar-page {
+    padding: 20px 10px 48px;
+    border-radius: 16px;
+  }
+
+  .calendar-day {
+    min-height: 50px;
+    padding: 6px;
+    border-radius: 10px;
+  }
+
+  .calendar-title {
+    font-size: 1.1rem;
+  }
+
+  .calendar-nav {
+    width: 34px;
+    height: 34px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+
+  .calendar-weekdays span {
+    font-size: 0.65rem;
+  }
+
+  .day-number {
+    font-size: 0.72rem;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .dots-wrap {
+    gap: 3px;
+    margin-top: 6px;
+  }
+
+  .calendar-tooltip {
+    width: 170px;
+    left: 0;
+    transform: none;
   }
 }
 
