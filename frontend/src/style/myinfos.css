@@ -181,3 +181,8 @@ select:invalid {
   border: 2px solid transparent;
   background-clip: content-box;
 }
+
+.section-icon svg {
+  width: 18px;
+  height: 18px;
+}

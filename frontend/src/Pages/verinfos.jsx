@@ -1,51 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header/Header';
 import '../style/verinfos.css';
-import { Link, useNavigate, useLocation } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-
-
 export default function Verinfos() {
-  const [infos, setInfos] = useState(null);
+  const [infos, setInfos] = useState(undefined);
   const [menuOpen, setMenuOpen] = useState(false);
-  
-  const navigate = useNavigate(); 
 
-  function editarinfos(){
-       navigate("/myinfos");
+  const navigate = useNavigate();
+
+  function editarinfos() {
+    navigate("/myinfos");
   }
 
-  useEffect(() => {
-    async function loadInfos() {
-      try {
-        const token = localStorage.getItem("token");
+useEffect(() => {
+  async function loadInfos() {
+    try {
+      const token = localStorage.getItem("token");
 
-        const response = await fetch(`${API}/myinfos`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      const response = await fetch(`${API}/myinfos`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        const data = await response.json();
-        setInfos(data);
+      console.log("Status:", response.status);
 
-      } catch (err) {
-        console.log(err);
-      }
+      const data = await response.json();
+
+      console.log("Resposta:", data);
+
+      setInfos(data);
+
+    } catch (err) {
+      console.log(err);
     }
-
-    loadInfos();
-  }, []);
-
-  if (!infos) {
-    return (
-      <div className="infos-page">
-        <p className="infos-loading">Carregando informações...</p>
-      </div>
-    );
   }
+
+  loadInfos();
+}, []);
+
+if (infos === undefined) {
+  return (
+    <div className="infos-page">
+      <p className="infos-loading">Carregando informações...</p>
+    </div>
+  );
+}
+
+if (infos === null) {
+  navigate("/myinfos");
+  return null;
+}
 
   return (
     <>
