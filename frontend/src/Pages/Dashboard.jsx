@@ -45,8 +45,21 @@ function calcJuros(valor, vencimento, taxaMensal, tipo) {
   const diasAtraso = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)))
   const mesesAtraso = diasAtraso / 30
   const taxa = parseFloat(taxaMensal) / 100
+  const test =0;
 
-  if (isNaN(taxa) || taxa <= 0) return null
+if (isNaN(taxa) || taxa < 0) {
+  return null;
+}
+
+if (taxa === 0) {
+  return {
+    diasAtraso,
+    jurosValor: 0,
+    total: valor
+  };
+}
+
+
 
   let total
   if (tipo === 'composto') {
@@ -151,21 +164,38 @@ async function fetchContas() {
     }
   }
 
-  async function executarToggle(conta, pago, parcelas) {
-    try {
-      await fetch(`${API}/contas/${conta.id}/pagar`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ pago, parcelas })
+async function executarToggle(conta, pago, parcelas) {
+  try {
+    const j = juros[conta.id]
+
+ const valorBase = conta.valorOriginal ?? conta.valor;
+
+const calc =
+  j?.aberto && j?.taxa !== ""
+    ? calcJuros(valorBase, conta.vencimento, j.taxa, j.tipo)
+    : null;
+
+    await fetch(`${API}/contas/${conta.id}/pagar`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        pago,
+        parcelas,
+        valor:
+      Number(j?.taxa) > 0
+        ? calc.total
+        : conta.valorOriginal
       })
-      fetchContas()
-    } catch {
-      setErro('Erro ao atualizar')
-    }
+    })
+
+    fetchContas()
+  } catch {
+    setErro('Erro ao atualizar')
   }
+}
 
   function abrirModalParcelas(conta) {
     if (conta.pago) {
@@ -206,9 +236,23 @@ async function fetchContas() {
     executarToggle(conta, modo === 'pagar', num)
   }
 
-  function togglePago(conta) {
-    abrirModalParcelas(conta)
+function togglePago(conta) {
+  if (getStatus(conta) === 'vencido') {
+    const j = juros[conta.id];
+
+    if (j?.taxa === "" || j?.taxa === undefined) {
+      alert("Por favor, informe a taxa de juros.");
+      return;
+    }
+
+    if (Number(j.taxa) < 0) {
+      alert("A taxa de juros não pode ser negativa.");
+      return;
+    }
   }
+
+  abrirModalParcelas(conta);
+}
 
   async function deletar(id) {
     if (!confirm('Remover esta conta?')) return
@@ -455,8 +499,18 @@ console.log(
           )}
 
           {!loading && contasFiltradas.map(conta => {
-            const j = juros[conta.id] || { taxa: '', tipo: 'simples', aberto: false }
-            const calc = j.aberto && j.taxa ? calcJuros(conta.valor, conta.vencimento, j.taxa, j.tipo) : null
+             const j = juros[conta.id] || {
+                taxa: '',
+                tipo: 'simples',
+                aberto: false
+              }
+
+              const valorBase = conta.valorOriginal ?? conta.valor;
+
+              const calc =
+                j.aberto && j.taxa !== ''
+                  ? calcJuros(valorBase, conta.vencimento, j.taxa, j.tipo)
+                  : null;
 
             return (
               <div key={conta.id} className={`conta-card status-${getStatus(conta)}`}>
@@ -527,15 +581,17 @@ console.log(
                           </div>
                           <div className="juros-linha">
                             <span>Valor original</span>
-                            <span className="juros-val">{formatMoney(conta.valor)}</span>
-                          </div>
+                            <span className="juros-val">
+                            {formatMoney(conta.valorOriginal ?? conta.valor)}
+                          </span>                 
+                            </div>
                           <div className="juros-linha">
                             <span>Juros acumulados</span>
                             <span className="juros-val juros-red">{formatMoney(calc.jurosValor)}</span>
                           </div>
                           <div className="juros-linha juros-total-linha">
                             <span>Total a pagar</span>
-                            <span className="juros-val juros-total">{formatMoney(calc.total)}</span>
+                            <span className="juros-val juros-total">{formatMoney(calc.total)}</span>  
                           </div>
                         </div>
                       )}
